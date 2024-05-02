@@ -20,8 +20,8 @@ export default {
   MAIL_PWD: process.env.MAIL_PWD,
   MAIL_SENDER: process.env.MAIL_SENDER,
 
-  // Cloudinary
-  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
-  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
-  CLOUDINARY_API_CLOUD_NAME: process.env.CLOUDINARY_API_CLOUD_NAME,
+  // Twilio
+  TWILIO_SID: process.env.TWILIO_SID as string,
+  TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN as string,
+  TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER as string,
 };
