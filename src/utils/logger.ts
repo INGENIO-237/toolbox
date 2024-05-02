@@ -11,8 +11,8 @@ const logger = createLogger({
     format.json()
   ),
   transports: [
-    new transports.File({ filename: 'loumo-error.log', level: 'error' }),
-    new transports.File({ filename: 'loumo-combined.log' })
+    new transports.File({ filename: 'toolbox-error.log', level: 'error' }),
+    new transports.File({ filename: 'toolbox-combined.log' })
   ]
 });
 
