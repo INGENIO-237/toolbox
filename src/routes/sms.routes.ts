@@ -7,13 +7,13 @@ import Container from "typedi";
 import SmsController from "../controllers/sms.controller";
 import { tryCatch } from "../utils/errors/errors.utils";
 
-const SmsRoutes = Router();
+const SmsRouter = Router();
 const controller = Container.get(SmsController);
 
-SmsRoutes.post(
+SmsRouter.post(
   "/send",
   validate(sendSmsSchema),
   tryCatch(controller.sendSms.bind(controller))
 );
 
-export default SmsRoutes
+export default SmsRouter

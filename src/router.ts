@@ -1,5 +1,6 @@
 import { Express, Request, Response } from "express";
-import SmsRoutes from "./routes/sms.routes";
+import SmsRouter from "./routes/sms.routes";
+import AppsRouter from "./routes/apps.routes";
 
 export default function router(server: Express) {
   // Healthcheck endpoint
@@ -8,5 +9,6 @@ export default function router(server: Express) {
   );
 
   //   API endpoints
-  server.use("/api/sms", SmsRoutes);
+  server.use("/api/apps", AppsRouter);
+  server.use("/api/sms", SmsRouter);
 }
