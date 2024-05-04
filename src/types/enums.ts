@@ -1,10 +1,10 @@
 export enum AllowedServices {
-  "payments" = "payments",
-  "sms" = "sms",
-  "both" = "both",
+  payments = "payments",
+  sms = "sms",
+  both = "both",
 }
 
 export enum AccountMode {
-  "test" = "test",
-  "live" = "live",
+  test = "test",
+  live = "live",
 }

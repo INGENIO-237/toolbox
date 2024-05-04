@@ -3,10 +3,10 @@ import { AccountMode, AllowedServices } from "../types/enums";
 
 export interface AppDocument extends Document {
   name: string;
-  allowedServices: AllowedServices;
+  allowedServices?: AllowedServices;
   apiKey?: string;
-  mode: AccountMode;
-  solde: number;
+  mode?: AccountMode;
+  solde?: number;
 }
 
 const appSchema = new Schema({
@@ -17,14 +17,14 @@ const appSchema = new Schema({
   },
   allowedServices: {
     type: String,
-    required: true,
     enum: AllowedServices,
+    default: AllowedServices.both,
   },
   apiKey: String,
   mode: {
     type: String,
-    default: AccountMode.test,
     enum: AccountMode,
+    default: AccountMode.test,
   },
   solde: {
     type: Number,
@@ -32,11 +32,11 @@ const appSchema = new Schema({
   },
 });
 
-appSchema.post("save", function(doc, next) {
-    if(doc.isNew){
-        // TODO: Generate and set apiKey
-    }
-})
+appSchema.post("save", function (doc, next) {
+  if (doc.isNew) {
+    // TODO: Generate and set apiKey
+  }
+});
 
 const App = model<AppDocument>("App", appSchema);
 
