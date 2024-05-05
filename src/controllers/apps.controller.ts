@@ -2,7 +2,7 @@ import { Service } from "typedi";
 import AppsService from "../services/apps.services";
 import { Request, Response } from "express";
 import HTTP from "../utils/constants/http.responses";
-import { registerAppInput } from "../schemas/apps.schemas";
+import { RegisterAppInput, UpdateAppInput } from "../schemas/apps.schemas";
 
 @Service()
 export default class AppsController {
@@ -14,9 +14,21 @@ export default class AppsController {
     return res.status(HTTP.OK).json(apps);
   }
 
-  async registerApp(req: Request<{}, {}, registerAppInput["body"]>, res: Response) {
+  async registerApp(
+    req: Request<{}, {}, RegisterAppInput["body"]>,
+    res: Response
+  ) {
     const app = await this.service.registerApp(req.body);
 
     return res.status(HTTP.CREATED).json(app);
+  }
+
+  async updateApp(
+    req: Request<UpdateAppInput["params"], {}, UpdateAppInput["body"]>,
+    res: Response
+  ) {
+    await this.service.updateApp(req.params.appId, req.body);
+
+    return res.sendStatus(HTTP.OK);
   }
 }

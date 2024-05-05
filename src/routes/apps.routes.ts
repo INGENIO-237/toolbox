@@ -3,7 +3,7 @@ import Container from "typedi";
 import AppsController from "../controllers/apps.controller";
 // import isAuthenticated from "../middlewares/isAuthenticated";
 import validate from "../middlewares/validate.request";
-import { registerAppSchema } from "../schemas/apps.schemas";
+import { registerAppSchema, updateAppShema } from "../schemas/apps.schemas";
 import { tryCatch } from "../utils/errors/errors.utils";
 
 const AppsRouter = Router();
@@ -20,6 +20,11 @@ AppsRouter.post(
   // isAuthenticated,
   validate(registerAppSchema),
   tryCatch(controller.registerApp.bind(controller))
+);
+AppsRouter.put(
+  "/:appId",
+  validate(updateAppShema),
+  tryCatch(controller.updateApp.bind(controller))
 );
 
 export default AppsRouter;

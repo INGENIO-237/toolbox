@@ -1,4 +1,6 @@
-import { object, string, z } from "zod";
+import { object, optional, string, z } from "zod";
+import { AccountMode, AllowedServices } from "../types/enums";
+import { Types } from "mongoose";
 
 export const registerAppSchema = object({
   body: object({
@@ -9,4 +11,66 @@ export const registerAppSchema = object({
   }),
 });
 
-export type registerAppInput = z.infer<typeof registerAppSchema>;
+export type RegisterAppInput = z.infer<typeof registerAppSchema>;
+
+export const updateAppShema = object({
+  params: object({
+    appId: string({
+      required_error: "App identifier is required as a parameter",
+    }),
+  }).superRefine((data, ctx) => {
+    if (data.appId) {
+      try {
+        new Types.ObjectId(data.appId);
+      } catch (error) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Invalid app identifier",
+        });
+      }
+    }
+  }),
+
+  body: object({
+    name: optional(
+      string({
+        invalid_type_error: "Name must be string",
+      })
+    ),
+    allowedServices: optional(
+      string({ invalid_type_error: "Allowed services must be of type string" })
+    ),
+    mode: optional(string({ invalid_type_error: "Mode must be a string" })),
+  }).superRefine((data, ctx) => {
+    if (!data.name && !data.allowedServices && !data.mode) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid payload. Cannot process an empty payload.",
+      });
+    }
+
+    if (data.allowedServices) {
+      if (
+        !Object.values(AllowedServices).includes(
+          data.allowedServices as AllowedServices
+        )
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Invalid Allowed Service",
+        });
+      }
+    }
+
+    if (data.mode) {
+      if (!Object.values(AccountMode).includes(data.mode as AccountMode)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Invalid Account Mode",
+        });
+      }
+    }
+  }),
+});
+
+export type UpdateAppInput = z.infer<typeof updateAppShema>;
