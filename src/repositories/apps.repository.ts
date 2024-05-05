@@ -1,6 +1,7 @@
 import { Service } from "typedi";
-import { registerAppInput } from "../schemas/apps.schemas";
+import { RegisterAppInput, UpdateAppInput } from "../schemas/apps.schemas";
 import App from "../models/apps.model";
+import { Types } from "mongoose";
 
 @Service()
 export default class AppsRepository {
@@ -8,11 +9,17 @@ export default class AppsRepository {
     return await App.find().select("-__v");
   }
 
-  async registerApp(app: registerAppInput["body"]) {
+  async registerApp(app: RegisterAppInput["body"]) {
     return await App.create(app);
   }
 
   async getApp({ appId, name }: { appId?: string; name?: string }) {
-    return await App.find({ $or: [{ _id: appId }, { name }] });
+    return await App.findOne({
+      $or: [{ _id: new Types.ObjectId(appId) }, { name }],
+    });
+  }
+
+  async updateApp(appId: string, update: UpdateAppInput["body"]) {
+    await App.findByIdAndUpdate(appId, update);
   }
 }
