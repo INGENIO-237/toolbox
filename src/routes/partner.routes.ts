@@ -6,19 +6,16 @@ import Container from "typedi";
 import PartnerController from "../controllers/partner.controller";
 import validate from "../middlewares/validate.request";
 import { createPartnerSchema } from "../schemas/partner.schemas";
-// import isAuthenticated from "../middlewares/isAuthenticated";
+import isAuthenticated from "../middlewares/isAuthenticated";
 
 const PartnersRouter = Router();
 const controller = Container.get(PartnerController);
 
-PartnersRouter.get(
-  "",
-  // isAuthenticated,
-  tryCatch(controller.getPartners.bind(controller))
-);
+PartnersRouter.use(isAuthenticated);
+
+PartnersRouter.get("", tryCatch(controller.getPartners.bind(controller)));
 PartnersRouter.post(
   "",
-  // isAuthenticated,
   validate(createPartnerSchema),
   tryCatch(controller.createPartner.bind(controller))
 );
