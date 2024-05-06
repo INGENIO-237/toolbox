@@ -7,7 +7,7 @@ export default function router(server: Express) {
     res.sendStatus(200)
   );
 
-  //   API endpoints
+  // API endpoints
   server.use("/api/apps", AppsRouter);
   server.use("/api/partners", PartnersRouter);
   server.use("/api/sms", SmsRouter);
