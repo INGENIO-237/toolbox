@@ -13,9 +13,17 @@ export default class AppsRepository {
     return await App.create(app);
   }
 
-  async getApp({ appId, name }: { appId?: string; name?: string }) {
+  async getApp({
+    appId,
+    name,
+    apiKey,
+  }: {
+    appId?: string;
+    name?: string;
+    apiKey?: string;
+  }) {
     return await App.findOne({
-      $or: [{ _id: new Types.ObjectId(appId) }, { name }],
+      $or: [{ _id: new Types.ObjectId(appId) }, { name }, { apiKey }],
     });
   }
 

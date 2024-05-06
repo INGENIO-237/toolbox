@@ -21,7 +21,7 @@ export default class AppsService {
     return "tb-" + v4();
   }
 
-  async getApp(filter: { appId?: string; name?: string }) {
+  async getApp(filter: { appId?: string; name?: string; apiKey?: string }) {
     return await this.repository.getApp(filter);
   }
 

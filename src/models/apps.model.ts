@@ -11,6 +11,7 @@ export interface AppDocument extends Document {
   apiKey: string;
   mode: AccountMode;
   solde: number;
+  hasBeenDeleted: boolean;
   createdAt: Date;
 }
 
@@ -36,6 +37,7 @@ const appSchema = new Schema(
       type: Number,
       default: 0,
     },
+    hasBeenDeleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,
