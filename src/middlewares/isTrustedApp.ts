@@ -30,6 +30,8 @@ export default function isTrustedApp(
           .json([{ message: "You are not allowed to access this resource" }]);
       }
 
+      res.locals.allowedServices = trustedApp.allowedServices as string;
+
       return next();
     })
     .catch((error) => {
