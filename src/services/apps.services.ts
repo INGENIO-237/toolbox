@@ -4,6 +4,8 @@ import { RegisterAppInput, UpdateAppInput } from "../schemas/apps.schemas";
 import { v4 } from "uuid";
 import ApiError from "../utils/errors/errors.base";
 import HTTP from "../utils/constants/http.responses";
+import { AppDocument } from "../models/apps.model";
+import COMMON_MSG from "../utils/constants/common.msgs";
 
 @Service()
 export default class AppsService {
@@ -14,6 +16,12 @@ export default class AppsService {
   }
 
   async registerApp(app: RegisterAppInput["body"]) {
+    const nameIsUnique = await this.nameIsUnique({ name: app.name });
+
+    if(!nameIsUnique){
+      throw new ApiError(COMMON_MSG.inUse("Name"), HTTP.BAD_REQUEST)
+    }
+
     return await this.repository.registerApp(app);
   }
 
@@ -28,10 +36,35 @@ export default class AppsService {
   async updateApp(appId: string, update: UpdateAppInput["body"]) {
     const app = await this.getApp({ appId });
 
+    if (update.name) {
+      const nameIsUnique = await this.nameIsUnique({
+        appId,
+        name: update.name,
+      });
+
+      if (!nameIsUnique) {
+        throw new ApiError(COMMON_MSG.inUse("Name"), HTTP.BAD_REQUEST);
+      }
+    }
+
     if (!app) {
-      throw new ApiError("Unregistered app", HTTP.BAD_REQUEST);
+      throw new ApiError(COMMON_MSG.unregistered("App"), HTTP.BAD_REQUEST);
     }
 
     await this.repository.updateApp(appId, update);
+  }
+
+  private async nameIsUnique({
+    appId,
+    name,
+  }: {
+    appId?: string;
+    name: string;
+  }) {
+    const app = (await this.getApp({ name })) as AppDocument;
+
+    if (!appId && app) return false;
+
+    return app._id.toString() === appId;
   }
 }
