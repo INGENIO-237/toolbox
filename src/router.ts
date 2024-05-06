@@ -13,13 +13,5 @@ export default function router(server: Express) {
   // API endpoints
   server.use("/api/apps", AppsRouter);
   server.use("/api/partners", PartnersRouter);
-  // server.use("/api/sms", SmsRouter);
-  server.get(
-    "/api/payments",
-    isTrustedApp,
-    isAllowedService,
-    (req: Request, res: Response) => {
-      return res.sendStatus(HTTP.OK);
-    }
-  );
+  server.use("/api/sms", SmsRouter);
 }
