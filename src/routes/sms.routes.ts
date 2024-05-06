@@ -11,9 +11,10 @@ import isTrustedApp from "../middlewares/isTrustedApp";
 const SmsRouter = Router();
 const controller = Container.get(SmsController);
 
+SmsRouter.use(isTrustedApp);
+
 SmsRouter.post(
   "/send",
-  isTrustedApp,
   validate(sendSmsSchema),
   tryCatch(controller.sendSms.bind(controller))
 );
