@@ -1,6 +1,38 @@
 import { array, object, string, z } from "zod";
 import { CountryCode } from "../types/enums";
 
+/**
+ * @openapi
+ * 
+ * components:
+ *  schemas:
+ *    RegisterPartner:
+ *      required:
+ *        - name
+ *        - baseUrl
+ *        - methods
+ *      properties:
+ *        name:
+ *          type: string
+ *        baseUrl:
+ *          type: string
+ *        methods:
+ *          type: array
+ *          items:
+ *            type: object
+ *            required:
+ *              - name
+ *              - countries
+ *            properties:
+ *              name:
+ *                type: string
+ *              countries:
+ *                type: array
+ *                items:
+ *                  type: string
+ *              
+ */
+
 export const createPartnerSchema = object({
   body: object({
     name: string({

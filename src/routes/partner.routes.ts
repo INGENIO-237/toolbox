@@ -13,7 +13,54 @@ const controller = Container.get(PartnerController);
 
 PartnersRouter.use(isAuthenticated);
 
+/**
+ * @openapi
+ *
+ * /partners:
+ *  get:
+ *    tags:
+ *    - Partners
+ *    summary: Get list of partners
+ *    security:
+ *      - BearerAuth: []
+ *      - RefreshTokenAuth: []
+ *    responses:
+ *      200:
+ *        description: List of partners
+ *      401:
+ *        description: Unauthorized to access this resource
+ *      500:
+ *        description: Internal Server Error
+ */
 PartnersRouter.get("", tryCatch(controller.getPartners.bind(controller)));
+
+/**
+ * @openapi
+ *
+ * /partners:
+ *  post:
+ *    tags:
+ *    - Partners
+ *    summary: Register a partner
+ *    security:
+ *      - BearerAuth: []
+ *      - RefreshTokenAuth: []
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/RegisterPartner'
+ *    responses:
+ *      201:
+ *        description: Partner registered
+ *      400:
+ *        description: Bad Request
+ *      401:
+ *        description: Unauthorized to perform this action
+ *      500:
+ *        description: Internal Server Error
+ */
 PartnersRouter.post(
   "",
   validate(createPartnerSchema),

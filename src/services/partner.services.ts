@@ -39,6 +39,8 @@ export default class PartnerService {
 
     if (!partnerId && partner) return false;
 
+    if (!partner) return true;
+
     return partner._id.toString() === partnerId;
   }
 }

@@ -1,5 +1,23 @@
 import { object, optional, string, z } from "zod";
 
+/**
+ * @openapi
+ *
+ * components:
+ *  schemas:
+ *    CreateUser:
+ *      type: object
+ *      required:
+ *        - email
+ *        - password
+ *      properties:
+ *        email:
+ *          type: string
+ *          default: john.doe@test.com
+ *        password:
+ *          type: string
+ *          default: john.doe.123
+ */
 export const createUserSchema = object({
   body: object({
     email: string({ required_error: "Email is required" }).email(

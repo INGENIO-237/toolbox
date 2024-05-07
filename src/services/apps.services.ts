@@ -18,8 +18,8 @@ export default class AppsService {
   async registerApp(app: RegisterAppInput["body"]) {
     const nameIsUnique = await this.nameIsUnique({ name: app.name });
 
-    if(!nameIsUnique){
-      throw new ApiError(COMMON_MSG.inUse("Name"), HTTP.BAD_REQUEST)
+    if (!nameIsUnique) {
+      throw new ApiError(COMMON_MSG.inUse("Name"), HTTP.BAD_REQUEST);
     }
 
     return await this.repository.registerApp(app);
@@ -64,6 +64,8 @@ export default class AppsService {
     const app = (await this.getApp({ name })) as AppDocument;
 
     if (!appId && app) return false;
+
+    if (!app) return true;
 
     return app._id.toString() === appId;
   }
