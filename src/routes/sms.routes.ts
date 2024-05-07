@@ -15,6 +15,32 @@ const controller = Container.get(SmsController);
 SmsRouter.use(isTrustedApp);
 SmsRouter.use(isAllowedService);
 
+/**
+ * @openapi
+ * 
+ * /sms/send:
+ *  post:
+ *    tags:
+ *    - SMS
+ *    summary: Send a sms
+ *    security:
+ *      - ApiKeyAuth: []
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/SendSms'
+ *    responses:
+ *      201:
+ *        description: SMS sent
+ *      400:
+ *        description: Bad Request
+ *      401:
+ *        description: Unauthorized to access this resource
+ *      500:
+ *        description: Internal Server Error
+ */
 SmsRouter.post(
   "/send",
   validate(sendSmsSchema),
