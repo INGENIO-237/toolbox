@@ -35,7 +35,7 @@ export default class SessionController {
         ip,
       });
 
-    return res.status(201).json({ accessToken, refreshToken, otpGenerated });
+    return res.status(HTTP.CREATED).json({ accessToken, refreshToken, otpGenerated });
   }
 
   async getCurrentUser(req: Request, res: Response) {

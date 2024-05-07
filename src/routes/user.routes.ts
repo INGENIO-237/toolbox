@@ -35,7 +35,7 @@ const controller = Container.get(UserController);
  *        401:
  *          description: Unauthorized to access this resource
  *        500:
- *          description: Internal server error
+ *          description: Internal Server Error
  */
 UsersRouter.get(
   "",
@@ -61,11 +61,11 @@ UsersRouter.get(
  *            $ref: '#/components/schemas/CreateUser'
  *    responses:
  *      201:
- *        description: User created
+ *        description: User Created
  *      400:
- *        description: Bad request
+ *        description: Bad Request
  *      500:
- *        description: Internal server error
+ *        description: Internal Server Error
  */
 UsersRouter.post(
   "",

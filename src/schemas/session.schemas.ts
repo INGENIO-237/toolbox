@@ -1,5 +1,31 @@
 import { number, object, optional, string, z } from "zod";
 
+/**
+ * @openapi
+ *
+ * components:
+ *  schemas:
+ *    Login:
+ *      required:
+ *        - email
+ *        - password
+ *      properties:
+ *        email:
+ *          type: string
+ *        password:
+ *          type: string
+ *        otp:
+ *          type: integer
+ *    LoginReturn:
+ *      properties:
+ *        accessToken:
+ *          type: string
+ *        refreshToken:
+ *          type: string
+ *        otpGenerated:
+ *          type: boolean
+ *          default: false
+ */
 export const createSessionSchema = object({
   body: object({
     email: string({ required_error: "Email is required" }).email(
@@ -12,6 +38,17 @@ export const createSessionSchema = object({
 
 export type CreateSessionInput = z.infer<typeof createSessionSchema>;
 
+/**
+ * @openapi
+ * components:
+ *  schemas:
+ *    ForgotPassword:
+ *      required:
+ *        - email
+ *      properties:
+ *        email:
+ *          type: string
+ */
 export const forgotPasswordSchema = object({
   body: object({
     email: string({ required_error: "Email is required" }).email(
@@ -22,6 +59,24 @@ export const forgotPasswordSchema = object({
 
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 
+/**
+ * @openapi
+ * 
+ * components:
+ *  schemas:
+ *    ForgotPasswordConfirm:
+ *      required:
+ *        - email
+ *        - password
+ *        - otp
+ *      properties:
+ *        email:
+ *          type: string
+ *        password:
+ *          type: string
+ *        otp:
+ *          type: integer
+ */
 export const forgotPasswordConfirmSchema = object({
   body: object({
     email: string({
