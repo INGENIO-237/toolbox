@@ -4,6 +4,7 @@ import router from "../router";
 import errorHandler from "../utils/errors/errors.handler";
 import { deserializeUser } from "../middlewares/session";
 import cors from "cors";
+import swaggerDocs from "../docs/swagger";
 
 export default function createServer() {
   const server = express();
@@ -16,6 +17,7 @@ export default function createServer() {
   // server.use(express.urlencoded({ extended: false }));
   server.use(deserializeUser);
 
+  swaggerDocs(server);
   router(server);
 
   server.use(errorHandler);

@@ -6,7 +6,7 @@ export default function isAuthenticated(
   res: Response,
   next: NextFunction
 ) {
-  if (!res.locals.user) return res.sendStatus(HTTP.FORBIDDEN);
+  if (!res.locals.user) return res.sendStatus(HTTP.UNAUTHORIZED);
 
   return next();
 }
