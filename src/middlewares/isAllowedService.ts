@@ -13,7 +13,7 @@ export default function isAllowedService(
     return next();
   }
 
-  const requestedService = req.url.split("/")[2];
+  const requestedService = req.originalUrl.split("/")[2];
 
   if (requestedService !== allowedServices) {
     return res
