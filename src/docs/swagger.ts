@@ -12,6 +12,9 @@ const specifications = swaggerJSDoc({
       title: "ToolBox",
       description: "Lorem ipsum dolor sit amet",
       version,
+      contact: {
+        name: "ABDEL-KALIF BEN HAMADOU",
+      },
     },
     servers: [
       {

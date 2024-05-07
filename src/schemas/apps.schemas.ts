@@ -2,6 +2,18 @@ import { object, optional, string, z } from "zod";
 import { AccountMode, AllowedServices } from "../types/enums";
 import { Types } from "mongoose";
 
+/**
+ * @openapi
+ * 
+ * components:
+ *  schemas:
+ *    RegisterApp:
+ *      required:
+ *        - name
+ *      properties:
+ *        name:
+ *          type: string
+ */
 export const registerAppSchema = object({
   body: object({
     name: string({
@@ -13,6 +25,20 @@ export const registerAppSchema = object({
 
 export type RegisterAppInput = z.infer<typeof registerAppSchema>;
 
+/**
+ * @openapi
+ * 
+ * components:
+ *   schemas:
+ *    UpdateApp:
+ *      properties:
+ *        name:
+ *          type: string
+ *        allowedServices:
+ *          type: string
+ *        mode:
+ *          type: string
+ */
 export const updateAppShema = object({
   params: object({
     appId: string({

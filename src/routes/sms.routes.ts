@@ -38,6 +38,8 @@ SmsRouter.use(isAllowedService);
  *        description: Bad Request
  *      401:
  *        description: Unauthorized to access this resource
+ *      403:
+ *        description: Not allowed to use this service
  *      500:
  *        description: Internal Server Error
  */
