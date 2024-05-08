@@ -5,7 +5,10 @@ import { tryCatch } from "../utils/errors/errors.utils";
 import Container from "typedi";
 import PartnerController from "../controllers/partner.controller";
 import validate from "../middlewares/validate.request";
-import { createPartnerSchema } from "../schemas/partner.schemas";
+import {
+  createPartnerSchema,
+  updatePartnerSchema,
+} from "../schemas/partner.schemas";
 import isAuthenticated from "../middlewares/isAuthenticated";
 
 const PartnersRouter = Router();
@@ -65,6 +68,46 @@ PartnersRouter.post(
   "",
   validate(createPartnerSchema),
   tryCatch(controller.createPartner.bind(controller))
+);
+
+/**
+ * @openapi
+ * 
+ * /partners/{partnerId}:
+ *  put:
+ *    tags:
+ *    - Partners
+ *    summary: Update a given partner
+ *    security:
+ *      - BearerAuth: []
+ *      - RefreshTokenAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: partnerId
+ *        required: true
+ *        type: string
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/UpdatePartner'
+ *    responses:
+ *      200:
+ *        description: Partner updated
+ *      400:
+ *        description: Bad Request
+ *      401:
+ *        description: Unauthorized to perform this action
+ *      404:
+ *        description: Not Found
+ *      500:
+ *        description: Internal Server Error
+ */
+PartnersRouter.put(
+  "/:partnerId",
+  validate(updatePartnerSchema),
+  tryCatch(controller.updatePartner.bind(controller))
 );
 
 export default PartnersRouter;
