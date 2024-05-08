@@ -1,6 +1,9 @@
 import { Service } from "typedi";
 import Partner from "../models/partner.model";
-import { CreatePartnerInput } from "../schemas/partner.schemas";
+import {
+  CreatePartnerInput,
+  UpdatePartnerInput,
+} from "../schemas/partner.schemas";
 import { Types } from "mongoose";
 
 @Service()
@@ -17,5 +20,9 @@ export default class PartnerRepository {
     return await Partner.findOne({
       $or: [{ _id: new Types.ObjectId(partnerId) }, { name }],
     });
+  }
+
+  async updatePartner(partnerId: string, update: UpdatePartnerInput["body"]) {
+    await Partner.findByIdAndUpdate(partnerId, update);
   }
 }

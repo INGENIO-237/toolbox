@@ -80,6 +80,7 @@ AppsRouter.post(
  *    parameters:
  *      - in: path
  *        name: appId
+ *        required: true
  *        type: string
  *    requestBody:
  *      content:

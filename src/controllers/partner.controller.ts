@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import { Service } from "typedi";
 import PartnerService from "../services/partner.services";
-import { CreatePartnerInput } from "../schemas/partner.schemas";
+import {
+  CreatePartnerInput,
+  UpdatePartnerInput,
+} from "../schemas/partner.schemas";
 import HTTP from "../utils/constants/http.responses";
 
 @Service()
@@ -21,5 +24,14 @@ export default class PartnerController {
     const partner = await this.service.createPartner(req.body);
 
     return res.status(HTTP.CREATED).json(partner);
+  }
+
+  async updatePartner(
+    req: Request<UpdatePartnerInput["params"], {}, UpdatePartnerInput["body"]>,
+    res: Response
+  ) {
+    await this.service.updatePartner(req.params.partnerId, req.body);
+
+    return res.sendStatus(HTTP.OK);
   }
 }
