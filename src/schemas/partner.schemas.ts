@@ -1,5 +1,5 @@
 import { array, object, optional, string, z } from "zod";
-import { CountryCode } from "../types/enums";
+import { CountryCode } from "../utils/enums/enums";
 
 /**
  * @openapi

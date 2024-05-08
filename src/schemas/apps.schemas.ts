@@ -1,5 +1,5 @@
 import { object, optional, string, z } from "zod";
-import { AccountMode, AllowedServices } from "../types/enums";
+import { ACCOUNT_MODE, ALLOWED_SERVICES } from "../utils/enums/enums";
 import { Types } from "mongoose";
 
 /**
@@ -77,8 +77,8 @@ export const updateAppShema = object({
 
     if (data.allowedServices) {
       if (
-        !Object.values(AllowedServices).includes(
-          data.allowedServices as AllowedServices
+        !Object.values(ALLOWED_SERVICES).includes(
+          data.allowedServices as ALLOWED_SERVICES
         )
       ) {
         ctx.addIssue({
@@ -89,7 +89,7 @@ export const updateAppShema = object({
     }
 
     if (data.mode) {
-      if (!Object.values(AccountMode).includes(data.mode as AccountMode)) {
+      if (!Object.values(ACCOUNT_MODE).includes(data.mode as ACCOUNT_MODE)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Invalid Account Mode",

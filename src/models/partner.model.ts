@@ -1,5 +1,5 @@
 import { Document, Schema, model } from "mongoose";
-import { CountryCode } from "../types/enums";
+import { CountryCode } from "../utils/enums/enums";
 
 type Method = {
   name: string;

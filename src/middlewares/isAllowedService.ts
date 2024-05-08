@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { AllowedServices } from "../types/enums";
+import { ALLOWED_SERVICES } from "../utils/enums/enums";
 import HTTP from "../utils/constants/http.responses";
 
 export default function isAllowedService(
@@ -9,7 +9,7 @@ export default function isAllowedService(
 ) {
   const allowedServices = res.locals.allowedServices;
 
-  if (allowedServices === AllowedServices.both) {
+  if (allowedServices === ALLOWED_SERVICES.both) {
     return next();
   }
 

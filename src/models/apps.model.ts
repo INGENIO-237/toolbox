@@ -1,15 +1,15 @@
 import "reflect-metadata";
 
 import { Document, Schema, model } from "mongoose";
-import { AccountMode, AllowedServices } from "../types/enums";
+import { ACCOUNT_MODE, ALLOWED_SERVICES } from "../utils/enums/enums";
 import Container from "typedi";
 import AppsService from "../services/apps.services";
 
 export interface AppDocument extends Document {
   name: string;
-  allowedServices: AllowedServices;
+  allowedServices: ALLOWED_SERVICES;
   apiKey: string;
-  mode: AccountMode;
+  mode: ACCOUNT_MODE;
   solde: number;
   hasBeenDeleted: boolean;
   createdAt: Date;
@@ -24,14 +24,14 @@ const appSchema = new Schema(
     },
     allowedServices: {
       type: String,
-      enum: AllowedServices,
-      default: AllowedServices.both,
+      enum: ALLOWED_SERVICES,
+      default: ALLOWED_SERVICES.both,
     },
     apiKey: String,
     mode: {
       type: String,
-      enum: AccountMode,
-      default: AccountMode.test,
+      enum: ACCOUNT_MODE,
+      default: ACCOUNT_MODE.test,
     },
     solde: {
       type: Number,

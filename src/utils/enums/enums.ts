@@ -1,10 +1,10 @@
-export enum AllowedServices {
+export enum ALLOWED_SERVICES {
   payments = "payments",
   sms = "sms",
   both = "both",
 }
 
-export enum AccountMode {
+export enum ACCOUNT_MODE {
   test = "test",
   live = "live",
 }
