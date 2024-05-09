@@ -1,9 +1,9 @@
 import { Document, Schema, model } from "mongoose";
-import { CountryCode } from "../utils/enums/enums";
+import { COUNTRY_CODE } from "../utils/enums/enums";
 
 type Method = {
   name: string;
-  countries: CountryCode[];
+  countries: COUNTRY_CODE[];
 };
 
 export interface PartnerDocument extends Document {
@@ -31,7 +31,7 @@ const partnerSchema = new Schema({
         },
         countries: {
           type: [String],
-          enum: CountryCode,
+          enum: COUNTRY_CODE,
         },
       },
     ],

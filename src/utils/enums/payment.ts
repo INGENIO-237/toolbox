@@ -9,4 +9,9 @@ export enum TRANSACTION_TYPE {
   CASHOUT = "CASHOUT",
 }
 
+export enum SUPPORTED_CURRENCIES {
+  XAF = "XAF",
+  XOF = "XOF",
+}
+
 export enum PARTNERS {}

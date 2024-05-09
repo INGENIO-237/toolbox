@@ -1,5 +1,5 @@
 import { array, object, optional, string, z } from "zod";
-import { CountryCode } from "../utils/enums/enums";
+import { COUNTRY_CODE } from "../utils/enums/enums";
 
 /**
  * @openapi
@@ -74,7 +74,7 @@ export const createPartnerSchema = object({
   }).superRefine((data, ctx) => {
     data.methods.forEach((method) => {
       method.countries.forEach((country) => {
-        if (!Object.values(CountryCode).includes(country as CountryCode)) {
+        if (!Object.values(COUNTRY_CODE).includes(country as COUNTRY_CODE)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message:
@@ -168,7 +168,7 @@ export const updatePartnerSchema = object({
     if (data.methods) {
       data.methods.forEach((method) => {
         method.countries.forEach((country) => {
-          if (!Object.values(CountryCode).includes(country as CountryCode)) {
+          if (!Object.values(COUNTRY_CODE).includes(country as COUNTRY_CODE)) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               message:

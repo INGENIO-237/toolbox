@@ -1,11 +1,11 @@
 import { Schema, Types, model } from "mongoose";
 import PaymentSchema, { PaymentDocument } from "./payment.model";
-import { CountryCode } from "../../utils/enums/enums";
+import { COUNTRY_CODE } from "../../utils/enums/enums";
 import { PartnerDocument } from "../partner.model";
 
 type Provider = {
   name: string;
-  country: CountryCode;
+  country: COUNTRY_CODE;
 };
 
 export interface MobilePaymentDocument extends PaymentDocument {
@@ -30,7 +30,7 @@ const mobilePaymentSchema = PaymentSchema.discriminator(
         },
         country: {
           type: String,
-          enum: CountryCode,
+          enum: COUNTRY_CODE,
         },
       },
       required: true,

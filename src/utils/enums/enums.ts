@@ -9,7 +9,7 @@ export enum ACCOUNT_MODE {
   live = "live",
 }
 
-export enum CountryCode {
+export enum COUNTRY_CODE {
   AF = "AF",
   AX = "AX",
   AL = "AL",
