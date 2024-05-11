@@ -23,4 +23,12 @@ export default class StripePaymentController {
 
     return res.status(HTTP.CREATED).json(initializedPayment);
   }
+
+  async handleWebhook(req: Request, res: Response) {
+    const signature = req.headers["stripe-signature"] as string | string[];
+
+    await this.service.handlePaymentHook(signature, req.body);
+
+    return res.sendStatus(HTTP.OK);
+  }
 }

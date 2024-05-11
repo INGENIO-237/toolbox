@@ -3,7 +3,9 @@ import { Stripe } from "stripe";
 import config from "../../config";
 import { CreatePaymentInput } from "../../schemas/payments";
 import { StripePaymentRepository } from "../../repositories/payments";
-import { TRANSACTION_TYPE } from "../../utils/enums/payment";
+import { PAYMENT_STATUS, TRANSACTION_TYPE } from "../../utils/enums/payment";
+import ApiError from "../../utils/errors/errors.base";
+import HTTP from "../../utils/constants/http.responses";
 
 @Service()
 export default class StripePaymentService {
@@ -38,7 +40,6 @@ export default class StripePaymentService {
       currency,
       paymentIntent,
       transactionType: TRANSACTION_TYPE.CASHIN,
-      clientSecret: client_secret as string,
     });
 
     /**
@@ -69,5 +70,67 @@ export default class StripePaymentService {
     return { client_secret, paymentIntent, customerId };
   }
 
-  async handlePaymentHook() {}
+  async handlePaymentHook(
+    signature: string | string[] | Buffer,
+    data: string | Buffer
+  ) {
+    let event: Stripe.Event;
+
+    try {
+      event = this._stripe.webhooks.constructEvent(
+        data,
+        signature,
+        config.STRIPE_WEBHOOK_ENDPOINT_SECRET
+      );
+    } catch (err: any) {
+      throw new ApiError(`Webhook Error: ${err.message}`, HTTP.BAD_REQUEST);
+    }
+
+    const { type: eventType } = event;
+
+    if (eventType === "charge.captured" || eventType === "charge.succeeded") {
+      const paymentIntent = event.data.object.payment_intent as string;
+      const receipt = event.data.object.receipt_url as string;
+
+      await this.handleSuccessfullPayment({ paymentIntent, receipt });
+    }
+
+    if (eventType === "charge.expired" || eventType === "charge.failed") {
+      const paymentIntent = event.data.object.payment_intent as string;
+      const { failure_message: failMessage } = event.data.object;
+
+      await this.handleFailedPayment({
+        paymentIntent,
+        failMessage: failMessage as string,
+      });
+    }
+  }
+
+  private async handleSuccessfullPayment({
+    paymentIntent,
+    receipt,
+  }: {
+    paymentIntent: string;
+    receipt: string;
+  }) {
+    await this.repository.updatePayment({
+      paymentIntent,
+      receipt,
+      status: PAYMENT_STATUS.SUCCEEDED,
+    });
+  }
+
+  private async handleFailedPayment({
+    paymentIntent,
+    failMessage,
+  }: {
+    paymentIntent: string;
+    failMessage: string;
+  }) {
+    await this.repository.updatePayment({
+      paymentIntent,
+      failMessage,
+      status: PAYMENT_STATUS.FAILED,
+    });
+  }
 }

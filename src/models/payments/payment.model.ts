@@ -15,6 +15,7 @@ export interface PaymentDocument extends Document {
   status: PAYMENT_STATUS;
   transactionType: TRANSACTION_TYPE;
   providerRef?: string;
+  failMessage?: string;
 }
 
 const PaymentSchema = new Schema(

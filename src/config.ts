@@ -32,4 +32,7 @@ export default {
   STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY as string,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY as string,
   STRIPE_API_VERSION: process.env.STRIPE_API_VERSION as string,
+  STRIPE_WEBHOOK_ENDPOINT_SECRET: (process.env.NODE_ENV === "production"
+    ? process.env.STRIPE_WEBHOOK_ENDPOINT_SECRET_LIVE
+    : process.env.STRIPE_WEBHOOK_ENDPOINT_SECRET_TEST) as string,
 };

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { Router } from "express";
+import { Router, raw } from "express";
 import Container from "typedi";
 import { StripePaymentController } from "../../controllers/payments";
 import validate from "../../middlewares/validate.request";
@@ -10,9 +10,6 @@ import isAllowedService from "../../middlewares/isAllowedService";
 
 const StripePaymentRouter = Router();
 const controller = Container.get(StripePaymentController);
-
-StripePaymentRouter.use(isTrustedApp);
-StripePaymentRouter.use(isAllowedService);
 
 /**
  * @openapi
@@ -41,8 +38,16 @@ StripePaymentRouter.use(isAllowedService);
  */
 StripePaymentRouter.post(
   "",
+  isTrustedApp,
+  isAllowedService,
   validate(createPaymentSchema),
   controller.initializePayment.bind(controller)
+);
+
+StripePaymentRouter.post(
+  "/webhook",
+  raw({ type: "application/json" }),
+  controller.handleWebhook.bind(controller)
 );
 
 export default StripePaymentRouter;

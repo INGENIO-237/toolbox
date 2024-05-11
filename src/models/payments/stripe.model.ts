@@ -3,12 +3,11 @@ import PaymentSchema, { PaymentDocument } from "./payment.model";
 
 export type StripeMetadata = {
   paymentIntent: string;
-  clientSecret: string;
 };
 
 export interface StripePaymentDocument extends PaymentDocument {
   paymentIntent: string;
-  clientSecret: string;
+  receipt?: string;
 }
 
 const StripePayment = PaymentSchema.discriminator<StripePaymentDocument>(
@@ -18,10 +17,8 @@ const StripePayment = PaymentSchema.discriminator<StripePaymentDocument>(
       type: String,
       required: true,
     },
-    clientSecret: {
-      type: String,
-      required: true,
-    },
+    receipt: String,
+    failMessage: String,
   })
 );
 
