@@ -14,7 +14,7 @@ export interface MobilePaymentDocument extends PaymentDocument {
   phone: string;
 }
 
-const mobilePaymentSchema = PaymentSchema.discriminator(
+const MobilePayment = PaymentSchema.discriminator<MobilePaymentDocument>(
   "MobilePayment",
   new Schema({
     partner: {
@@ -40,11 +40,6 @@ const mobilePaymentSchema = PaymentSchema.discriminator(
       required: true,
     },
   })
-);
-
-const MobilePayment = model<MobilePaymentDocument>(
-  "MobilePayment",
-  mobilePaymentSchema
 );
 
 export default MobilePayment;
