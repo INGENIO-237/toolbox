@@ -1,5 +1,9 @@
-import { Document, Schema, Types } from "mongoose";
-import { PAYMENT_STATUS, SUPPORTED_CURRENCIES, TRANSACTION_TYPE } from "../../utils/enums/payment";
+import { Document, Schema, Types, model } from "mongoose";
+import {
+  PAYMENT_STATUS,
+  SUPPORTED_CURRENCIES,
+  TRANSACTION_TYPE,
+} from "../../utils/enums/payment";
 import { AppDocument } from "../apps.model";
 import { v4 } from "uuid";
 
@@ -28,7 +32,7 @@ const PaymentSchema = new Schema(
     currency: {
       type: String,
       default: SUPPORTED_CURRENCIES.XAF,
-      enum: SUPPORTED_CURRENCIES
+      enum: SUPPORTED_CURRENCIES,
     },
     status: {
       type: String,
@@ -42,7 +46,7 @@ const PaymentSchema = new Schema(
     },
     providerRef: String,
   },
-  { timestamps: true }
+  { timestamps: true, discriminatorKey: "type" }
 );
 
 PaymentSchema.pre<PaymentDocument>("save", function (next) {
@@ -55,4 +59,6 @@ PaymentSchema.pre<PaymentDocument>("save", function (next) {
   next();
 });
 
-export default PaymentSchema;
+const Payment = model<PaymentDocument>("Payment", PaymentSchema);
+
+export default Payment;

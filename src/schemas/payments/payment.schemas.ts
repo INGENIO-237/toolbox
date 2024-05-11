@@ -1,6 +1,21 @@
 import { nativeEnum, number, object, z } from "zod";
 import { SUPPORTED_CURRENCIES } from "../../utils/enums/payment";
 
+/**
+ * @openapi
+ * 
+ * components:
+ *  schemas:
+ *    InitializePayment:
+ *      required:
+ *        - amount
+ *        - currency
+ *      properties:
+ *        amount:
+ *          type: integer
+ *        currency:
+ *          type: string
+ */
 export const createPaymentSchema = object({
   body: object({
     amount: number({

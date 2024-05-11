@@ -5,12 +5,17 @@ import { ACCOUNT_MODE, ALLOWED_SERVICES } from "../utils/enums/enums";
 import Container from "typedi";
 import AppsService from "../services/apps.services";
 
+type Solde = {
+  card: number;
+  mobile: number;
+}
+
 export interface AppDocument extends Document {
   name: string;
   allowedServices: ALLOWED_SERVICES;
   apiKey: string;
   mode: ACCOUNT_MODE;
-  solde: number;
+  solde: Solde;
   hasBeenDeleted: boolean;
   createdAt: Date;
 }
@@ -34,8 +39,16 @@ const appSchema = new Schema(
       default: ACCOUNT_MODE.test,
     },
     solde: {
-      type: Number,
-      default: 0,
+      type: {
+        card: {
+          type: Number,
+          default: 0,
+        },
+        mobile: {
+          type: Number,
+          default: 0,
+        },
+      },
     },
     hasBeenDeleted: { type: Boolean, default: false },
   },
