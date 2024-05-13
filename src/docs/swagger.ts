@@ -18,12 +18,7 @@ const specifications = swaggerJSDoc({
     },
     servers: [
       {
-        url: `http://localhost:${config.PORT}/api`,
-        description: "Development server",
-      },
-      {
-        url: config.PRODUCTION_SERVER,
-        description: "Production server",
+        url: config.SWAGGER_SERVER,
       },
     ],
     components: {

@@ -1,6 +1,6 @@
 import { Schema, Types, model } from "mongoose";
 import PaymentSchema, { PaymentDocument } from "./payment.model";
-import { COUNTRY_CODE } from "../../utils/enums/enums";
+import { COUNTRY_CODE } from "../../utils/enums/common";
 import { PartnerDocument } from "../partner.model";
 
 type Provider = {

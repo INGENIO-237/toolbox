@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { ALLOWED_SERVICES } from "../utils/enums/enums";
+import { ALLOWED_SERVICES } from "../utils/enums/common";
 import HTTP from "../utils/constants/http.responses";
 
 export default function isAllowedService(

@@ -1,5 +1,5 @@
 import { object, optional, string, z } from "zod";
-import { ACCOUNT_MODE, ALLOWED_SERVICES } from "../utils/enums/enums";
+import { ACCOUNT_MODE, ALLOWED_SERVICES } from "../utils/enums/common";
 import { Types } from "mongoose";
 
 /**

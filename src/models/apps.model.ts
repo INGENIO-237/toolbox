@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import { Document, Schema, model } from "mongoose";
-import { ACCOUNT_MODE, ALLOWED_SERVICES } from "../utils/enums/enums";
+import { ACCOUNT_MODE, ALLOWED_SERVICES } from "../utils/enums/common";
 import Container from "typedi";
 import AppsService from "../services/apps.services";
 
