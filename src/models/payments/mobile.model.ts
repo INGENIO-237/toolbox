@@ -3,7 +3,7 @@ import PaymentSchema, { PaymentDocument } from "./payment.model";
 import { COUNTRY_CODE } from "../../utils/enums/common";
 import { PartnerDocument } from "../partner.model";
 
-type Provider = {
+export type Provider = {
   name: string;
   country: COUNTRY_CODE;
 };
@@ -12,6 +12,7 @@ export interface MobilePaymentDocument extends PaymentDocument {
   partner: PartnerDocument["_id"];
   provider: Provider;
   phone: string;
+  trxRef: string;
 }
 
 const MobilePayment = PaymentSchema.discriminator<MobilePaymentDocument>(
@@ -36,6 +37,10 @@ const MobilePayment = PaymentSchema.discriminator<MobilePaymentDocument>(
       required: true,
     },
     phone: {
+      type: String,
+      required: true,
+    },
+    trxRef: {
       type: String,
       required: true,
     },

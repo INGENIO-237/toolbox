@@ -1,7 +1,36 @@
-import { intersection, nativeEnum, object, string, z } from "zod";
+import { nativeEnum, object, string, z } from "zod";
 import { createPaymentSchema } from "./payment.schemas";
 import { COUNTRY_CODE } from "../../utils/enums/common";
 
+/**
+ * @openapi
+ *
+ * components:
+ *  schemas:
+ *    InitializeMobilePayment:
+ *      required:
+ *        - amount
+ *        - currency
+ *        - provider
+ *        - phone
+ *      properties:
+ *        amount:
+ *          type: integer
+ *        currency:
+ *          type: string
+ *        provider:
+ *          type: object
+ *          required:
+ *            - name
+ *            - country
+ *          properties:
+ *            name:
+ *              type: string
+ *            country:
+ *              type: string
+ *        phone:
+ *          type: string
+ */
 export const createMobilePaymentSchema = object({
   body: createPaymentSchema.shape.body.extend({
     provider: object({

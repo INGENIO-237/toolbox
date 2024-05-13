@@ -2,23 +2,23 @@ import "reflect-metadata";
 
 import { Router, raw } from "express";
 import Container from "typedi";
-import { StripePaymentController } from "../../controllers/payments";
+import { MobilePaymentController } from "../../controllers/payments";
 import validate from "../../middlewares/validate.request";
-import { createPaymentSchema } from "../../schemas/payments";
+import { createMobilePaymentSchema, createPaymentSchema } from "../../schemas/payments";
 import isTrustedApp from "../../middlewares/isTrustedApp";
 import isAllowedService from "../../middlewares/isAllowedService";
 import { tryCatch } from "../../utils/errors/errors.utils";
 
-const StripePaymentRouter = Router();
-const controller = Container.get(StripePaymentController);
+const MobilePaymentRouter = Router();
+const controller = Container.get(MobilePaymentController);
 
 /**
  * @openapi
- * /payments/stripe:
+ * /payments/mobile:
  *  post:
  *    tags:
- *    - Stripe Payment
- *    summary: Initialize a card payment via Stripe by requesting a payment intent
+ *    - Mobile Payment
+ *    summary: Initialize a mobile payment
  *    security:
  *      - ApiKeyAuth: []
  *    requestBody:
@@ -26,7 +26,7 @@ const controller = Container.get(StripePaymentController);
  *      content:
  *        application/json:
  *          schema:
- *            $ref: '#/components/schemas/InitializePayment'
+ *            $ref: '#/components/schemas/InitializeMobilePayment'
  *    responses:
  *      201:
  *        description: Payment Initialized
@@ -37,18 +37,18 @@ const controller = Container.get(StripePaymentController);
  *      500:
  *        description: Internal Server Error
  */
-StripePaymentRouter.post(
+MobilePaymentRouter.post(
   "",
   isTrustedApp,
   isAllowedService,
-  validate(createPaymentSchema),
+  validate(createMobilePaymentSchema),
   tryCatch(controller.initializePayment.bind(controller))
 );
 
-StripePaymentRouter.post(
-  "/webhook",
-  raw({ type: "application/json" }),
-  tryCatch(controller.handleWebhook.bind(controller))
-);
+// MobilePaymentRouter.post(
+//   "/webhook",
+//   raw({ type: "application/json" }),
+//   controller.handleWebhook.bind(controller)
+// );
 
-export default StripePaymentRouter;
+export default MobilePaymentRouter;

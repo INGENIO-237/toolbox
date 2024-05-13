@@ -10,6 +10,7 @@ import COMMON_MSG from "../utils/constants/common.msgs";
 import HTTP from "../utils/constants/http.responses";
 import { Types } from "mongoose";
 import isValidID from "../utils/check-id";
+import { COUNTRY_CODE } from "../utils/enums/common";
 
 @Service()
 export default class PartnerService {
@@ -28,21 +29,30 @@ export default class PartnerService {
 
     return await this.repository.createPartner(partner);
   }
-  
+
   async getPartner({
     partnerId,
     name,
+    method,
+    country,
     throwExpection = false,
   }: {
     partnerId?: string;
     name?: string;
+    method?: string;
+    country?: COUNTRY_CODE;
     throwExpection?: boolean;
   }) {
     if (partnerId) {
       isValidID(partnerId);
     }
 
-    const partner = await this.repository.getPartner({ partnerId, name });
+    const partner = await this.repository.getPartner({
+      partnerId,
+      name,
+      method,
+      country,
+    });
 
     if (!partner && throwExpection) {
       throw new ApiError(COMMON_MSG.notFound("Partner"), HTTP.NOT_FOUND);

@@ -1,3 +1,4 @@
 import StripePaymentRepository from "./stripe.repository";
+import MobilePaymentRepository from "./mobile.repository";
 
-export { StripePaymentRepository };
+export { MobilePaymentRepository, StripePaymentRepository };

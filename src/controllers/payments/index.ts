@@ -1,3 +1,4 @@
 import StripePaymentController from "./stripe.controller";
+import MobilePaymentController from "./mobile.controller";
 
-export { StripePaymentController };
+export { MobilePaymentController, StripePaymentController };

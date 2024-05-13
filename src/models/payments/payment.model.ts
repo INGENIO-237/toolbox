@@ -14,7 +14,6 @@ export interface PaymentDocument extends Document {
   currency: string;
   status: PAYMENT_STATUS;
   transactionType: TRANSACTION_TYPE;
-  providerRef?: string;
   failMessage?: string;
 }
 

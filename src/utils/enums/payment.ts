@@ -14,4 +14,6 @@ export enum SUPPORTED_CURRENCIES {
   XOF = "XOF",
 }
 
-export enum PARTNERS {}
+export enum PARTNERS {
+  NOTCHPAY="NOTCHPAY",
+}
