@@ -1,0 +1,17 @@
+export enum PAYMENT_STATUS {
+  INITIALIZED = "INITIALIZED",
+  FAILED = "FAILED",
+  SUCCEEDED = "SUCCEEDED",
+}
+
+export enum TRANSACTION_TYPE {
+  CASHIN = "CASHIN",
+  CASHOUT = "CASHOUT",
+}
+
+export enum SUPPORTED_CURRENCIES {
+  XAF = "XAF",
+  XOF = "XOF",
+}
+
+export enum PARTNERS {}

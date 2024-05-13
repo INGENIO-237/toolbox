@@ -7,6 +7,7 @@ import {
   UsersRouter,
 } from "./routes";
 import HTTP from "./utils/constants/http.responses";
+import StripePaymentRouter from "./routes/payments/stripe.routes";
 
 export default function router(server: Express) {
   // Healthcheck endpoint
@@ -19,5 +20,6 @@ export default function router(server: Express) {
   server.use("/api/partners", PartnersRouter);
   server.use("/api/sessions", SessionRouter);
   server.use("/api/sms", SmsRouter);
+  server.use("/api/payments/stripe", StripePaymentRouter);
   server.use("/api/users", UsersRouter);
 }

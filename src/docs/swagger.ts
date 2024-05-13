@@ -52,7 +52,12 @@ const specifications = swaggerJSDoc({
       ],
     },
   },
-  apis: ["./src/routes/*.routes.ts", "./src/schemas/*.schemas.ts"],
+  apis: [
+    "./src/routes/*.routes.ts",
+    "./src/routes/**/*.routes.ts",
+    "./src/schemas/*.schemas.ts",
+    "./src/schemas/**/*.schemas.ts",
+  ],
 });
 
 export default function swaggerDocs(server: Express) {

@@ -1,10 +1,11 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import connectToDatabase from "./db";
 import router from "../router";
 import errorHandler from "../utils/errors/errors.handler";
 import { deserializeUser } from "../middlewares/session";
 import cors from "cors";
 import swaggerDocs from "../docs/swagger";
+import parseBody from "../middlewares/request.body.parser";
 
 export default function createServer() {
   const server = express();
@@ -13,8 +14,8 @@ export default function createServer() {
 
   server.use(cors());
 
-  server.use(express.json());
-  // server.use(express.urlencoded({ extended: false }));
+  server.use(parseBody());
+
   server.use(deserializeUser);
 
   swaggerDocs(server);

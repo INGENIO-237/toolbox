@@ -1,7 +1,6 @@
 import "reflect-metadata";
 
 import { NextFunction, Request, Response } from "express";
-import ApiError from "../utils/errors/errors.base";
 import HTTP from "../utils/constants/http.responses";
 import Container from "typedi";
 import AppsService from "../services/apps.services";
@@ -31,6 +30,7 @@ export default function isTrustedApp(
       }
 
       res.locals.allowedServices = trustedApp.allowedServices as string;
+      res.locals.app = trustedApp._id.toString();
 
       return next();
     })
