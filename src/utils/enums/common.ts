@@ -9,6 +9,11 @@ export enum ACCOUNT_MODE {
   live = "live",
 }
 
+export enum ENV {
+  DEVELOPMENT = "development",
+  PRODUCTION = "production",
+}
+
 export enum COUNTRY_CODE {
   AF = "AF",
   AX = "AX",

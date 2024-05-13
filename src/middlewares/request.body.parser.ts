@@ -11,10 +11,9 @@ import { Request, Response, NextFunction, json } from "express";
  */
 export default function parseBody() {
   return function (req: Request, res: Response, next: NextFunction) {
-    if (!req.originalUrl.includes("stripe/webhook")) {
+    if (req && !req.originalUrl.includes("stripe/webhook")) {
       return json()(req, res, next);
     }
-
     return next();
   };
 }

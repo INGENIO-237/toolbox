@@ -5,9 +5,9 @@
   "main": "dist/src/index.js",
   "scripts": {
     "test": "jest",
-    "dev": "ts-node-dev --transpile-only --respawn src/index.ts",
-    "build": "npm i && npx tsc",
-    "start": "node dist/src/index.js"
+    "dev": "NODE_ENV=development ts-node-dev --transpile-only --respawn src/index.ts",
+    "build": "npm i",
+    "start": "npx tsc && node dist/src/index.js"
   },
   "keywords": [],
   "author": "",

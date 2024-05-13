@@ -1,12 +1,20 @@
 import { config } from "dotenv";
+import { ENV } from "./utils/enums/common";
 
 config();
 
 export default {
+  NODE_ENV: process.env.NODE_ENV,
   PORT: process.env.PORT ? process.env.PORT : 8000,
-  DB_CONNECTION_STRING: process.env.DB_CONNECTION_STRING as string,
+  DB_CONNECTION_STRING:
+    process.env.NODE_ENV == ENV.PRODUCTION
+      ? (process.env.DB_ATLAS as string)
+      : (process.env.DB_CONNECTION_STRING as string),
   SALT_FACTOR: parseInt(process.env.SALT_FACTOR as string),
-  PRODUCTION_SERVER: process.env.PRODUCTION_SERVER as string,
+  SWAGGER_SERVER:
+    process.env.NODE_ENV == ENV.PRODUCTION
+      ? (process.env.PRODUCTION_SERVER as string)
+      : (process.env.DEVELOPMENT_SERVER as string),
 
   // TOKENS
   ACCESS_TOKEN_PRIVATE_KEY: process.env.ACCESS_TOKEN_PRIVATE_KEY,
@@ -29,10 +37,16 @@ export default {
   TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER as string,
 
   // STRIPE
-  STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY as string,
-  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY as string,
+  STRIPE_PUBLIC_KEY:
+    process.env.NODE_ENV == ENV.PRODUCTION
+      ? (process.env.STRIPE_PUBLIC_KEY_LIVE as string)
+      : (process.env.STRIPE_PUBLIC_KEY_TEST as string),
+  STRIPE_SECRET_KEY:
+    process.env.NODE_ENV == ENV.PRODUCTION
+      ? (process.env.STRIPE_SECRET_KEY_LIVE as string)
+      : (process.env.STRIPE_SECRET_KEY_TEST as string),
   STRIPE_API_VERSION: process.env.STRIPE_API_VERSION as string,
-  STRIPE_WEBHOOK_ENDPOINT_SECRET: (process.env.NODE_ENV === "production"
+  STRIPE_WEBHOOK_ENDPOINT_SECRET: (process.env.NODE_ENV === ENV.PRODUCTION
     ? process.env.STRIPE_WEBHOOK_ENDPOINT_SECRET_LIVE
     : process.env.STRIPE_WEBHOOK_ENDPOINT_SECRET_TEST) as string,
 };
