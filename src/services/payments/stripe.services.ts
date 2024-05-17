@@ -10,6 +10,7 @@ import HTTP from "../../utils/constants/http.responses";
 @Service()
 export default class StripePaymentService {
   private _secretKey: string = config.STRIPE_SECRET_KEY;
+  private _webHookSecret: string = config.STRIPE_WEBHOOK_ENDPOINT_SECRET;
   private _stripe: Stripe;
 
   constructor(private repository: StripePaymentRepository) {
@@ -80,7 +81,7 @@ export default class StripePaymentService {
       event = this._stripe.webhooks.constructEvent(
         data,
         signature,
-        config.STRIPE_WEBHOOK_ENDPOINT_SECRET
+        this._webHookSecret
       );
     } catch (err: any) {
       throw new ApiError(`Webhook Error: ${err.message}`, HTTP.BAD_REQUEST);
@@ -93,6 +94,8 @@ export default class StripePaymentService {
       const receipt = event.data.object.receipt_url as string;
 
       await this.handleSuccessfullPayment({ paymentIntent, receipt });
+
+      // TODO: Update app balance
     }
 
     if (eventType === "charge.expired" || eventType === "charge.failed") {

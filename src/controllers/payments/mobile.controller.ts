@@ -4,6 +4,7 @@ import { CreateMobilePaymentInput } from "../../schemas/payments";
 import { MobilePaymentService } from "../../services/payments";
 import { ACCOUNT_MODE } from "../../utils/enums/common";
 import HTTP from "../../utils/constants/http.responses";
+import { PARTNERS } from "../../utils/enums/payment";
 
 @Service()
 export default class MobilePaymentController {
@@ -20,5 +21,24 @@ export default class MobilePaymentController {
     });
 
     return res.status(HTTP.CREATED).json({ paymentRef });
+  }
+
+  async handleWebhook(req: Request, res: Response) {
+    const partner = req.params.partner.toUpperCase();
+
+    let signature;
+
+    if (partner == PARTNERS.NOTCHPAY)
+      signature = req.headers["x-notch-signature"];
+
+    if (signature) {
+      await this.service.handleWebhook({
+        partner,
+        signature: signature as string,
+        data: req.body,
+      });
+    }
+
+    return res.sendStatus(HTTP.OK);
   }
 }

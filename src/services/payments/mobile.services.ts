@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { CreateMobilePaymentInput } from "../../schemas/payments";
 import PartnerService from "../partner.services";
-import { ACCOUNT_MODE, COUNTRY_CODE } from "../../utils/enums/common";
+import { ACCOUNT_MODE, COUNTRY_CODE, ENV } from "../../utils/enums/common";
 import ApiError from "../../utils/errors/errors.base";
 import HTTP from "../../utils/constants/http.responses";
 import { PartnerDocument } from "../../models/partner.model";
@@ -14,6 +14,7 @@ import { MobilePaymentRepository } from "../../repositories/payments";
 import { NotchPayService } from "./mobile";
 import { Provider } from "../../models/payments/mobile.model";
 import isValidPhoneNumber from "../../utils/phone";
+import config from "../../config";
 
 @Service()
 export default class MobilePaymentService {
@@ -39,6 +40,13 @@ export default class MobilePaymentService {
       throw new ApiError("Invalid phone number", HTTP.BAD_REQUEST);
     }
 
+    if (config.NODE_ENV === ENV.PRODUCTION && mode === ACCOUNT_MODE.test) {
+      throw new ApiError(
+        "You are not allowed to use this service in production. Contact support.",
+        HTTP.FORBIDDEN
+      );
+    }
+
     const partner = await this.findAppropriatePartner({
       method: name,
       country,
@@ -53,7 +61,6 @@ export default class MobilePaymentService {
 
     return await this.handlePaymentInitialization({
       partner,
-      mode,
       app,
       amount,
       currency,
@@ -80,26 +87,20 @@ export default class MobilePaymentService {
     amount,
     currency,
     phone,
-    mode,
     provider,
     app,
   }: {
     partner: PartnerDocument;
-  } & {
     amount: number;
     currency: SUPPORTED_CURRENCIES;
     phone: string;
     provider: Provider;
-  } & {
-    mode: ACCOUNT_MODE;
     app: string;
   }) {
     switch (partner.name) {
       case PARTNERS.NOTCHPAY:
         // Initialize payment with the partner
         const reference = await this.notchpay.initializePayment({
-          baseUrl: partner.baseUrl,
-          mode,
           amount,
           currency,
           phone,
@@ -121,6 +122,25 @@ export default class MobilePaymentService {
 
       default:
         throw new ApiError("Invalid partner", HTTP.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async handleWebhook({
+    partner,
+    signature,
+    data,
+  }: {
+    partner: string;
+    signature: string;
+    data: any;
+  }) {
+    switch (partner) {
+      case PARTNERS.NOTCHPAY:
+        await this.notchpay.handleWebhook({ signature, payload: data });
+        break;
+
+      default:
+        throw new ApiError("Invalid partner", HTTP.BAD_REQUEST);
     }
   }
 }

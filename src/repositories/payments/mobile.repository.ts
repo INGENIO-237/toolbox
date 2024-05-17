@@ -1,6 +1,6 @@
 import { Service } from "typedi";
 import { CreateMobilePaymentInput } from "../../schemas/payments";
-import { TRANSACTION_TYPE } from "../../utils/enums/payment";
+import { PAYMENT_STATUS, TRANSACTION_TYPE } from "../../utils/enums/payment";
 import { MobilePayment } from "../../models/payments";
 
 @Service()
@@ -14,5 +14,17 @@ export default class MobilePaymentRepository {
     }
   ) {
     return await MobilePayment.create(data);
+  }
+
+  async updatePayment({
+    trxRef,
+    status,
+    failMessage,
+  }: {
+    trxRef: string;
+    status?: PAYMENT_STATUS;
+    failMessage?: string;
+  }) {
+    await MobilePayment.findOneAndUpdate({ trxRef }, { status, failMessage });
   }
 }

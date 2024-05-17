@@ -1,10 +1,10 @@
 import "reflect-metadata";
 
-import { Router, raw } from "express";
+import { Router } from "express";
 import Container from "typedi";
 import { MobilePaymentController } from "../../controllers/payments";
 import validate from "../../middlewares/validate.request";
-import { createMobilePaymentSchema, createPaymentSchema } from "../../schemas/payments";
+import { createMobilePaymentSchema } from "../../schemas/payments";
 import isTrustedApp from "../../middlewares/isTrustedApp";
 import isAllowedService from "../../middlewares/isAllowedService";
 import { tryCatch } from "../../utils/errors/errors.utils";
@@ -45,10 +45,9 @@ MobilePaymentRouter.post(
   tryCatch(controller.initializePayment.bind(controller))
 );
 
-// MobilePaymentRouter.post(
-//   "/webhook",
-//   raw({ type: "application/json" }),
-//   controller.handleWebhook.bind(controller)
-// );
+MobilePaymentRouter.post(
+  "/webhook/:partner",
+  tryCatch(controller.handleWebhook.bind(controller))
+);
 
 export default MobilePaymentRouter;

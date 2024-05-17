@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
 import connectToDatabase from "./db";
 import router from "../router";
 import errorHandler from "../utils/errors/errors.handler";
