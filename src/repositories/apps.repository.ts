@@ -2,6 +2,7 @@ import { Service } from "typedi";
 import { RegisterAppInput, UpdateAppInput } from "../schemas/apps.schemas";
 import App from "../models/apps.model";
 import { Types } from "mongoose";
+import { BALANCE_TYPE } from "../utils/enums/payment";
 
 @Service()
 export default class AppsRepository {
@@ -29,5 +30,15 @@ export default class AppsRepository {
 
   async updateApp(appId: string, update: UpdateAppInput["body"]) {
     await App.findByIdAndUpdate(appId, update);
+  }
+
+  async updateAppBalance(
+    appId: string,
+    amount: number,
+    balanceType: BALANCE_TYPE
+  ) {
+    await (balanceType === BALANCE_TYPE.CARD
+      ? App.findByIdAndUpdate(appId, { $inc: { "balance.card": amount } })
+      : App.findByIdAndUpdate(appId, { $inc: { "balance.mobile": amount } }));
   }
 }

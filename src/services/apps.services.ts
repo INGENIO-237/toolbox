@@ -6,6 +6,7 @@ import ApiError from "../utils/errors/errors.base";
 import HTTP from "../utils/constants/http.responses";
 import { AppDocument } from "../models/apps.model";
 import COMMON_MSG from "../utils/constants/common.msgs";
+import { BALANCE_TYPE } from "../utils/enums/payment";
 
 @Service()
 export default class AppsService {
@@ -68,5 +69,9 @@ export default class AppsService {
     if (!app) return true;
 
     return app._id.toString() === appId;
+  }
+
+  async updateBalance(appId: string, amount: number, balanceType: BALANCE_TYPE){
+    await this.repository.updateAppBalance(appId, amount, balanceType);
   }
 }

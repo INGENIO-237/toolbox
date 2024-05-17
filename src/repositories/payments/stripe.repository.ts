@@ -32,4 +32,14 @@ export default class StripePaymentRepository {
       { status, receipt, failMessage }
     );
   }
+
+  async getPayment({
+    paymentIntent,
+    ref,
+  }: {
+    paymentIntent?: string;
+    ref?: string;
+  }) {
+    return await StripePayment.findOne({ $or: [{ paymentIntent }, { ref }] });
+  }
 }

@@ -27,4 +27,10 @@ export default class MobilePaymentRepository {
   }) {
     await MobilePayment.findOneAndUpdate({ trxRef }, { status, failMessage });
   }
+
+  async getPayment({ trxRef, ref }: { trxRef?: string; ref?: string }) {
+    return await MobilePayment.findOne({
+      $or: [{ trxRef }, { ref }],
+    });
+  }
 }

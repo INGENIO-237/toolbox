@@ -14,6 +14,11 @@ export enum SUPPORTED_CURRENCIES {
   XOF = "XOF",
 }
 
+export enum BALANCE_TYPE {
+  CARD = "CARD",
+  MOBILE = "MOBILE",
+}
+
 export enum PARTNERS {
-  NOTCHPAY="NOTCHPAY",
+  NOTCHPAY = "NOTCHPAY",
 }

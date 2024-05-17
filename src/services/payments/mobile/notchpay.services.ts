@@ -1,17 +1,10 @@
 import { Service } from "typedi";
-import {
-  PAYMENT_STATUS,
-  SUPPORTED_CURRENCIES,
-} from "../../../utils/enums/payment";
+import { SUPPORTED_CURRENCIES } from "../../../utils/enums/payment";
 import axios from "axios";
-import http from "node:http";
 import { ENV } from "../../../utils/enums/common";
 import config from "../../../config";
 import logger from "../../../utils/logger";
-import ApiError from "../../../utils/errors/errors.base";
-import HTTP from "../../../utils/constants/http.responses";
 import crypto from "node:crypto";
-import { MobilePaymentRepository } from "../../../repositories/payments";
 import { formatNotchPayError } from "../../../utils/format.text";
 
 @Service()
@@ -20,8 +13,6 @@ export default class NotchPayService {
     config.NODE_ENV === ENV.PRODUCTION
       ? config.NOTCHPAY_WEBHOOK_SECRET_HASH_LIVE
       : config.NOTCHPAY_WEBHOOK_SECRET_HASH_TEST;
-
-  constructor(private repository: MobilePaymentRepository) {}
 
   async initializePayment({
     amount,
@@ -63,9 +54,19 @@ export default class NotchPayService {
   async handleWebhook({
     signature,
     payload,
+    successfulPaymentCb,
+    failedPaymentCb,
   }: {
     signature: string;
     payload: any;
+    successfulPaymentCb: ({ trxRef }: { trxRef: string }) => Promise<void>;
+    failedPaymentCb: ({
+      trxRef,
+      failMessage,
+    }: {
+      trxRef: string;
+      failMessage: string;
+    }) => Promise<void>;
   }) {
     // if (!this.isValidWebhook({ signature, payload })) {
     //   throw new ApiError("Invalid webhook params", HTTP.BAD_REQUEST);
@@ -77,9 +78,7 @@ export default class NotchPayService {
     } = payload;
 
     if (event == "payment.complete") {
-      await this.handleSuccessfullPayment({ trxRef: reference });
-
-      // TODO: Update app balance
+      await successfulPaymentCb({ trxRef: reference });
     }
 
     if (
@@ -87,32 +86,11 @@ export default class NotchPayService {
       event == "payment.expired" ||
       event == "payment.canceled"
     ) {
-      await this.handleFailedPayment({
+      await failedPaymentCb({
         trxRef: reference,
         failMessage: formatNotchPayError(event),
       });
     }
-  }
-
-  private async handleSuccessfullPayment({ trxRef }: { trxRef: string }) {
-    await this.repository.updatePayment({
-      trxRef,
-      status: PAYMENT_STATUS.SUCCEEDED,
-    });
-  }
-
-  private async handleFailedPayment({
-    trxRef,
-    failMessage,
-  }: {
-    trxRef: string;
-    failMessage: string;
-  }) {
-    await this.repository.updatePayment({
-      trxRef,
-      failMessage,
-      status: PAYMENT_STATUS.FAILED,
-    });
   }
 
   private isValidWebhook({
@@ -126,7 +104,7 @@ export default class NotchPayService {
       .createHmac("sha256", this._webHookSecretHash)
       .update(JSON.stringify(payload))
       .digest("hex");
-      
+
     return hash == signature;
     // amount: 2000,
     //   amount_total: 2000,

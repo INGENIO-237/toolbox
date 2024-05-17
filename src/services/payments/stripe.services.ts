@@ -3,9 +3,15 @@ import { Stripe } from "stripe";
 import config from "../../config";
 import { CreatePaymentInput } from "../../schemas/payments";
 import { StripePaymentRepository } from "../../repositories/payments";
-import { PAYMENT_STATUS, TRANSACTION_TYPE } from "../../utils/enums/payment";
+import {
+  BALANCE_TYPE,
+  PAYMENT_STATUS,
+  TRANSACTION_TYPE,
+} from "../../utils/enums/payment";
 import ApiError from "../../utils/errors/errors.base";
 import HTTP from "../../utils/constants/http.responses";
+import { StripePaymentDocument } from "../../models/payments/stripe.model";
+import AppsService from "../apps.services";
 
 @Service()
 export default class StripePaymentService {
@@ -13,7 +19,10 @@ export default class StripePaymentService {
   private _webHookSecret: string = config.STRIPE_WEBHOOK_ENDPOINT_SECRET;
   private _stripe: Stripe;
 
-  constructor(private repository: StripePaymentRepository) {
+  constructor(
+    private repository: StripePaymentRepository,
+    private appService: AppsService
+  ) {
     this._stripe = new Stripe(this._secretKey);
   }
 
@@ -121,6 +130,17 @@ export default class StripePaymentService {
       receipt,
       status: PAYMENT_STATUS.SUCCEEDED,
     });
+
+    // Update app balance
+    const payment = (await this.repository.getPayment({
+      paymentIntent,
+    })) as StripePaymentDocument;
+
+    await this.appService.updateBalance(
+      payment.app.toString(),
+      payment.amount,
+      BALANCE_TYPE.CARD
+    );
   }
 
   private async handleFailedPayment({

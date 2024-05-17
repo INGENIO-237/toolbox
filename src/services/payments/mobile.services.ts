@@ -6,21 +6,28 @@ import ApiError from "../../utils/errors/errors.base";
 import HTTP from "../../utils/constants/http.responses";
 import { PartnerDocument } from "../../models/partner.model";
 import {
+  BALANCE_TYPE,
   PARTNERS,
+  PAYMENT_STATUS,
   SUPPORTED_CURRENCIES,
   TRANSACTION_TYPE,
 } from "../../utils/enums/payment";
 import { MobilePaymentRepository } from "../../repositories/payments";
 import { NotchPayService } from "./mobile";
-import { Provider } from "../../models/payments/mobile.model";
+import {
+  MobilePaymentDocument,
+  Provider,
+} from "../../models/payments/mobile.model";
 import isValidPhoneNumber from "../../utils/phone";
 import config from "../../config";
+import AppsService from "../apps.services";
 
 @Service()
 export default class MobilePaymentService {
   constructor(
     private partnerService: PartnerService,
     private repository: MobilePaymentRepository,
+    private appService: AppsService,
     private notchpay: NotchPayService
   ) {}
 
@@ -136,11 +143,48 @@ export default class MobilePaymentService {
   }) {
     switch (partner) {
       case PARTNERS.NOTCHPAY:
-        await this.notchpay.handleWebhook({ signature, payload: data });
+        await this.notchpay.handleWebhook({
+          signature,
+          payload: data,
+          successfulPaymentCb: this.handleSuccessfullPayment,
+          failedPaymentCb: this.handleFailedPayment,
+        });
         break;
 
       default:
         throw new ApiError("Invalid partner", HTTP.BAD_REQUEST);
     }
+  }
+
+  private async handleSuccessfullPayment({ trxRef }: { trxRef: string }) {
+    await this.repository.updatePayment({
+      trxRef,
+      status: PAYMENT_STATUS.SUCCEEDED,
+    });
+
+    // Update app balance
+    const payment = (await this.repository.getPayment({
+      trxRef,
+    })) as MobilePaymentDocument;
+
+    await this.appService.updateBalance(
+      payment.app.toString(),
+      payment.amount,
+      BALANCE_TYPE.MOBILE
+    );
+  }
+
+  private async handleFailedPayment({
+    trxRef,
+    failMessage,
+  }: {
+    trxRef: string;
+    failMessage: string;
+  }) {
+    await this.repository.updatePayment({
+      trxRef,
+      failMessage,
+      status: PAYMENT_STATUS.FAILED,
+    });
   }
 }
