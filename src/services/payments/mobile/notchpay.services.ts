@@ -10,7 +10,7 @@ import { formatNotchPayError } from "../../../utils/format.text";
 @Service()
 export default class NotchPayService {
   private _webHookSecretHash =
-    config.NODE_ENV === ENV.PRODUCTION
+    config.APP_ENV === ENV.PRODUCTION
       ? config.NOTCHPAY_WEBHOOK_SECRET_HASH_LIVE
       : config.NOTCHPAY_WEBHOOK_SECRET_HASH_TEST;
 
@@ -30,7 +30,7 @@ export default class NotchPayService {
         {
           headers: {
             Authorization:
-              config.NODE_ENV == ENV.PRODUCTION
+              config.APP_ENV == ENV.PRODUCTION
                 ? config.NOTCHPAY_PUBLIC_KEY_LIVE
                 : config.NOTCHPAY_PUBLIC_KEY_TEST,
           },

@@ -5,9 +5,9 @@
   "main": "dist/src/index.js",
   "scripts": {
     "test": "jest",
-    "dev": "NODE_ENV=development ts-node-dev --transpile-only --respawn src/index.ts",
-    "build": "npm i && npx tsc",
-    "start": "node dist/src/index.js"
+    "dev": "APP_ENV=development ts-node-dev --transpile-only --respawn src/index.ts",
+    "build": "npm i",
+    "start": "npx tsc && node dist/src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -28,7 +28,6 @@
     "swagger-ui-express": "^5.0.0",
     "twilio": "^5.0.4",
     "typedi": "^0.10.0",
-    "typescript": "^5.4.5",
     "uuid": "^9.0.1",
     "winston": "^3.13.0",
     "zod": "^3.23.5"
@@ -42,6 +41,7 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
     "@types/uuid": "^9.0.8",
-    "ts-node-dev": "^2.0.0"
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
   }
 }

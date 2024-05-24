@@ -47,7 +47,7 @@ export default class MobilePaymentService {
       throw new ApiError("Invalid phone number", HTTP.BAD_REQUEST);
     }
 
-    if (config.NODE_ENV === ENV.PRODUCTION && mode === ACCOUNT_MODE.test) {
+    if (config.APP_ENV === ENV.PRODUCTION && mode === ACCOUNT_MODE.test) {
       throw new ApiError(
         "You are not allowed to use this service in production. Contact support.",
         HTTP.FORBIDDEN
