@@ -2,12 +2,12 @@
   "name": "toolbox",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/src/index.js",
+  "main": "src/index.ts",
   "scripts": {
     "test": "jest",
     "dev": "APP_ENV=development ts-node-dev --transpile-only --respawn src/index.ts",
-    "build": "npm i",
-    "start": "npx tsc && node dist/src/index.js"
+    "build": "npm i && npx tsc",
+    "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
