@@ -14,59 +14,59 @@ const UsersRouter = Router();
 
 const controller = Container.get(UserController);
 
-/**
- * @openapi
- *
- * /users:
- *    get:
- *      tags:
- *      - Users
- *      summary: Get list of users
- *      security:
- *        - BearerAuth: []
- *        - RefreshTokenAuth: []
- *
- *      responses:
- *        200:
- *          description: "List of users"
- *          content:
- *            application/json:
- *              schema:
- *        401:
- *          description: Unauthorized to access this resource
- *        500:
- *          description: Internal Server Error
- */
+// /**
+//  * @openapi
+//  *
+//  * /users:
+//  *    get:
+//  *      tags:
+//  *      - Users
+//  *      summary: Get list of users
+//  *      security:
+//  *        - BearerAuth: []
+//  *        - RefreshTokenAuth: []
+//  *
+//  *      responses:
+//  *        200:
+//  *          description: "List of users"
+//  *          content:
+//  *            application/json:
+//  *              schema:
+//  *        401:
+//  *          description: Unauthorized to access this resource
+//  *        500:
+//  *          description: Internal Server Error
+//  */
 UsersRouter.get(
   "",
   isAuthenticated,
   tryCatch(controller.getUsers.bind(controller))
 );
 
-/**
- * @openapi
- * 
- * /users:
- *  post:
- *    tags:
- *    - Users
- *    summary: Create a user
- *    produces:
- *      - application/json
- *    requestBody:
- *      required: true
- *      content:
- *        application/json:
- *          schema:
- *            $ref: '#/components/schemas/CreateUser'
- *    responses:
- *      201:
- *        description: User Created
- *      400:
- *        description: Bad Request
- *      500:
- *        description: Internal Server Error
- */
+// /**
+//  * @openapi
+//  * 
+//  * /users:
+//  *  post:
+//  *    tags:
+//  *    - Users
+//  *    summary: Create a user
+//  *    produces:
+//  *      - application/json
+//  *    requestBody:
+//  *      required: true
+//  *      content:
+//  *        application/json:
+//  *          schema:
+//  *            $ref: '#/components/schemas/CreateUser'
+//  *    responses:
+//  *      201:
+//  *        description: User Created
+//  *      400:
+//  *        description: Bad Request
+//  *      500:
+//  *        description: Internal Server Error
+//  */
 UsersRouter.post(
   "",
   validate(createUserSchema),
