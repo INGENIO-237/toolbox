@@ -1,5 +1,8 @@
 import { Service } from "typedi";
-import { CreateMobilePaymentInput } from "../../schemas/payments";
+import {
+  CreateMobilePaymentInput,
+  CreateMobileTransferInput,
+} from "../../schemas/payments";
 import PartnerService from "../partner.services";
 import { ACCOUNT_MODE, COUNTRY_CODE, ENV } from "../../utils/enums/common";
 import ApiError from "../../utils/errors/errors.base";
@@ -79,6 +82,57 @@ export default class MobilePaymentService {
     });
   }
 
+  async initializeTransfer(
+    data: CreateMobileTransferInput["body"] & {
+      mode: ACCOUNT_MODE;
+      app: string;
+    }
+  ) {
+    const {
+      amount,
+      currency,
+      provider: { name, country },
+      phone,
+      mode,
+      app,
+    } = data;
+
+    if (!isValidPhoneNumber(phone)) {
+      throw new ApiError("Invalid phone number", HTTP.BAD_REQUEST);
+    }
+
+    if (config.APP_ENV === ENV.PRODUCTION && mode === ACCOUNT_MODE.test) {
+      throw new ApiError(
+        "You are not allowed to use this service in production. Contact support.",
+        HTTP.FORBIDDEN
+      );
+    }
+
+    const partner = await this.findAppropriatePartner({
+      method: name,
+      country,
+    });
+
+    if (!partner) {
+      throw new ApiError(
+        "No available partner for the provided method and country",
+        HTTP.NOT_FOUND
+      );
+    }
+
+    return await this.handleTransferInitialization({
+      partner,
+      app,
+      amount,
+      currency,
+      phone,
+      provider: {
+        name,
+        country,
+      },
+    });
+  }
+
   private async findAppropriatePartner({
     method,
     country,
@@ -121,6 +175,49 @@ export default class MobilePaymentService {
           phone,
           provider,
           transactionType: TRANSACTION_TYPE.CASHIN,
+          trxRef: reference,
+          app,
+        });
+
+        return ref;
+
+      default:
+        throw new ApiError("Invalid partner", HTTP.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  private async handleTransferInitialization({
+    partner,
+    amount,
+    currency,
+    phone,
+    provider,
+    app,
+  }: {
+    partner: PartnerDocument;
+    amount: number;
+    currency: SUPPORTED_CURRENCIES;
+    phone: string;
+    provider: Provider;
+    app: string;
+  }) {
+    switch (partner.name) {
+      case PARTNERS.NOTCHPAY:
+        // Initialize transfer with the partner
+        const reference = await this.notchpay.initializeTransfer({
+          amount,
+          currency,
+          phone,
+        });
+
+        // Persist transfer
+        const { ref } = await this.repository.initializePayment({
+          partner: partner._id.toString(),
+          amount,
+          currency,
+          phone,
+          provider,
+          transactionType: TRANSACTION_TYPE.CASHOUT,
           trxRef: reference,
           app,
         });

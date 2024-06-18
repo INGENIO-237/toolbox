@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { Service } from "typedi";
-import { CreateMobilePaymentInput } from "../../schemas/payments";
+import {
+  CreateMobilePaymentInput,
+  CreateMobileTransferInput,
+} from "../../schemas/payments";
 import { MobilePaymentService } from "../../services/payments";
 import { ACCOUNT_MODE } from "../../utils/enums/common";
 import HTTP from "../../utils/constants/http.responses";
@@ -14,13 +17,26 @@ export default class MobilePaymentController {
     req: Request<{}, {}, CreateMobilePaymentInput["body"]>,
     res: Response
   ) {
-    const paymentRef = await this.service.initializePayment({
+    const reference = await this.service.initializePayment({
       ...req.body,
       mode: res.locals.mode as ACCOUNT_MODE,
       app: res.locals.app,
     });
 
-    return res.status(HTTP.CREATED).json({ paymentRef });
+    return res.status(HTTP.CREATED).json({ reference });
+  }
+
+  async initializeTransfer(
+    req: Request<{}, {}, CreateMobileTransferInput["body"]>,
+    res: Response
+  ) {
+    const reference = await this.service.initializeTransfer({
+      ...req.body,
+      mode: res.locals.mode as ACCOUNT_MODE,
+      app: res.locals.app,
+    });
+
+    return res.status(HTTP.CREATED).json({ reference });
   }
 
   async handleWebhook(req: Request, res: Response) {
