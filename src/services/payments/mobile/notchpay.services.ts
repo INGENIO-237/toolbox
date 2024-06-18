@@ -1,5 +1,8 @@
 import { Service } from "typedi";
-import { SUPPORTED_CURRENCIES } from "../../../utils/enums/payment";
+import {
+  SUPPORTED_CURRENCIES,
+  TRANSACTION_TYPE,
+} from "../../../utils/enums/payment";
 import axios from "axios";
 import { ENV } from "../../../utils/enums/common";
 import config from "../../../config";
@@ -47,6 +50,54 @@ export default class NotchPayService {
       })
       .catch((error) => {
         logger.error(error);
+        throw error;
+      });
+  }
+
+  async initializeTransfer({
+    amount,
+    currency,
+    phone,
+  }: {
+    amount: number;
+    currency: SUPPORTED_CURRENCIES;
+    phone: string;
+  }) {
+    return axios
+      .post(
+        `${config.NOTCHPAY_BASE_URL}/transfers`,
+        {
+          amount,
+          currency,
+          channel: "cm.mobile",
+          beneficiary: { phone },
+          description: TRANSACTION_TYPE.CASHOUT,
+          reference: config.NOTCHPAY_REFERENCE,
+        },
+        {
+          headers: {
+            Authorization:
+              config.APP_ENV == ENV.PRODUCTION
+                ? config.NOTCHPAY_PUBLIC_KEY_LIVE
+                : config.NOTCHPAY_PUBLIC_KEY_TEST,
+            "Grant-Authorization":
+              config.APP_ENV == ENV.PRODUCTION
+                ? config.NOTCHPAY_SECRET_KEY_LIVE
+                : config.NOTCHPAY_SECRET_KEY_TEST,
+            Accept: "application/json",
+          },
+          timeout: 5000,
+        }
+      )
+      .then((response) => {
+        const {
+          transfer: { reference },
+        } = response.data;
+
+        return reference as string;
+      })
+      .catch((error) => {
+        logger.error(error.message);
         throw error;
       });
   }

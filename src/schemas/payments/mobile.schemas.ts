@@ -47,6 +47,43 @@ export const createMobilePaymentSchema = object({
   }),
 });
 
+/**
+ * @openapi
+ *
+ * components:
+ *  schemas:
+ *    InitializeMobileTransfer:
+ *      required:
+ *        - amount
+ *        - currency
+ *        - provider
+ *        - phone
+ *      properties:
+ *        amount:
+ *          type: integer
+ *        currency:
+ *          type: string
+ *        provider:
+ *          type: object
+ *          required:
+ *            - name
+ *            - country
+ *          properties:
+ *            name:
+ *              type: string
+ *            country:
+ *              type: string
+ *        phone:
+ *          type: string
+ */
+export const createMobileTransferSchema = object({
+  body: createMobilePaymentSchema.shape.body,
+});
+
 export type CreateMobilePaymentInput = z.infer<
   typeof createMobilePaymentSchema
+>;
+
+export type CreateMobileTransferInput = z.infer<
+  typeof createMobileTransferSchema
 >;

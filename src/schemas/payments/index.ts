@@ -2,6 +2,8 @@ import { createPaymentSchema, CreatePaymentInput } from "./payment.schemas";
 import {
   createMobilePaymentSchema,
   CreateMobilePaymentInput,
+  createMobileTransferSchema,
+  CreateMobileTransferInput,
 } from "./mobile.schemas";
 
 export {
@@ -9,4 +11,6 @@ export {
   CreatePaymentInput,
   createMobilePaymentSchema,
   CreateMobilePaymentInput,
+  createMobileTransferSchema,
+  CreateMobileTransferInput,
 };
