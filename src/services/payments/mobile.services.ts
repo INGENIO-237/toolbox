@@ -146,14 +146,14 @@ export default class MobilePaymentService {
   private async handlePaymentInitialization({
     partner,
     amount,
-    currency,
+    currency=SUPPORTED_CURRENCIES.XAF,
     phone,
     provider,
     app,
   }: {
     partner: PartnerDocument;
     amount: number;
-    currency: SUPPORTED_CURRENCIES;
+    currency?: SUPPORTED_CURRENCIES;
     phone: string;
     provider: Provider;
     app: string;
@@ -189,14 +189,14 @@ export default class MobilePaymentService {
   private async handleTransferInitialization({
     partner,
     amount,
-    currency,
+    currency=SUPPORTED_CURRENCIES.XAF,
     phone,
     provider,
     app,
   }: {
     partner: PartnerDocument;
     amount: number;
-    currency: SUPPORTED_CURRENCIES;
+    currency?: SUPPORTED_CURRENCIES;
     phone: string;
     provider: Provider;
     app: string;

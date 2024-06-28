@@ -4,7 +4,7 @@ import {
   TRANSACTION_TYPE,
 } from "../../../utils/enums/payment";
 import axios from "axios";
-import { ENV } from "../../../utils/enums/common";
+import { COUNTRY_CODE, ENV } from "../../../utils/enums/common";
 import config from "../../../config";
 import logger from "../../../utils/logger";
 import crypto from "node:crypto";
@@ -45,7 +45,7 @@ export default class NotchPayService {
           transaction: { reference },
           authorization_url,
         } = response.data;
-        console.log({ authorization_url });
+        logger.info({ authorization_url });
         return reference as string;
       })
       .catch((error) => {
@@ -128,7 +128,6 @@ export default class NotchPayService {
       data: { reference },
     } = payload;
 
-
     if (event == "payment.complete") {
       await successfulPaymentCb({ trxRef: reference });
     }
@@ -169,5 +168,21 @@ export default class NotchPayService {
     //   currency: 'XAF',
     //   created_at: '2024-05-13T17:33:20.000000Z',
     //   updated_at: '2024-05-13T17:33:20.000000Z'
+  }
+
+  private async createRecipient({
+    name = "John Doe",
+    email = config.NOTCHPAY_DEFAULT_RECIPIENT_EMAIL,
+    phone,
+    country = COUNTRY_CODE.CM,
+    currency = SUPPORTED_CURRENCIES.XAF,
+  }: {
+    name: string;
+    email: string;
+    phone: string;
+    country?: COUNTRY_CODE;
+    currency?: SUPPORTED_CURRENCIES;
+  }) {
+    
   }
 }

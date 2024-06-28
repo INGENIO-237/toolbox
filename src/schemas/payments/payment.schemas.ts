@@ -1,15 +1,14 @@
-import { nativeEnum, number, object, z } from "zod";
+import { nativeEnum, number, object, optional, z } from "zod";
 import { SUPPORTED_CURRENCIES } from "../../utils/enums/payment";
 
 /**
  * @openapi
- * 
+ *
  * components:
  *  schemas:
  *    InitializePayment:
  *      required:
  *        - amount
- *        - currency
  *      properties:
  *        amount:
  *          type: integer
@@ -22,10 +21,11 @@ export const createPaymentSchema = object({
       required_error: "Amount to be paid is required",
       invalid_type_error: "Amount to be paid must be of type number",
     }),
-    currency: nativeEnum(SUPPORTED_CURRENCIES, {
-      required_error: "Currency is required",
-      invalid_type_error: "Currency not valid or not supported",
-    }),
+    currency: optional(
+      nativeEnum(SUPPORTED_CURRENCIES, {
+        invalid_type_error: "Currency not valid or not supported",
+      })
+    ),
   }),
 });
 

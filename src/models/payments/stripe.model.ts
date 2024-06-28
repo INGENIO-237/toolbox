@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import PaymentSchema, { PaymentDocument } from "./payment.model";
+import Payment, { PaymentDocument } from "./payment.model";
 
 export type StripeMetadata = {
   paymentIntent: string;
@@ -10,7 +10,7 @@ export interface StripePaymentDocument extends PaymentDocument {
   receipt?: string;
 }
 
-const StripePayment = PaymentSchema.discriminator<StripePaymentDocument>(
+const StripePayment = Payment.discriminator<StripePaymentDocument>(
   "StripePayment",
   new Schema({
     paymentIntent: {
