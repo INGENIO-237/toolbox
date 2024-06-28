@@ -128,6 +128,7 @@ export default class NotchPayService {
       data: { reference },
     } = payload;
 
+
     if (event == "payment.complete") {
       await successfulPaymentCb({ trxRef: reference });
     }

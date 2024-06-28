@@ -1,6 +1,6 @@
 import { Service } from "typedi";
 import { RegisterAppInput, UpdateAppInput } from "../schemas/apps.schemas";
-import App from "../models/apps.model";
+import App, { AppDocument } from "../models/apps.model";
 import { Types } from "mongoose";
 import { BALANCE_TYPE } from "../utils/enums/payment";
 
@@ -37,8 +37,17 @@ export default class AppsRepository {
     amount: number,
     balanceType: BALANCE_TYPE
   ) {
-    await (balanceType === BALANCE_TYPE.CARD
-      ? App.findByIdAndUpdate(appId, { $inc: { "balance.card": amount } })
-      : App.findByIdAndUpdate(appId, { $inc: { "balance.mobile": amount } }));
+    const app = await App.findById(appId) as AppDocument;
+
+    if(!app.balance){
+      app.balance = {
+        mobile: 0,
+        card: 0
+      }
+    }
+
+    balanceType === BALANCE_TYPE.CARD ? app.balance.card += amount : app.balance.mobile += amount
+
+    await app.save()
   }
 }
