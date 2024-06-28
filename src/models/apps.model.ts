@@ -5,7 +5,7 @@ import { ACCOUNT_MODE, ALLOWED_SERVICES } from "../utils/enums/common";
 import Container from "typedi";
 import AppsService from "../services/apps.services";
 
-type Solde = {
+type Balance = {
   card: number;
   mobile: number;
 }
@@ -15,7 +15,7 @@ export interface AppDocument extends Document {
   allowedServices: ALLOWED_SERVICES;
   apiKey: string;
   mode: ACCOUNT_MODE;
-  solde: Solde;
+  balance: Balance;
   hasBeenDeleted: boolean;
   createdAt: Date;
 }
@@ -38,7 +38,7 @@ const appSchema = new Schema(
       enum: ACCOUNT_MODE,
       default: ACCOUNT_MODE.test,
     },
-    solde: {
+    balance: {
       type: {
         card: {
           type: Number,

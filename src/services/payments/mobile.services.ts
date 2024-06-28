@@ -32,7 +32,7 @@ export default class MobilePaymentService {
     private repository: MobilePaymentRepository,
     private appService: AppsService,
     private notchpay: NotchPayService
-  ) {}
+  ) { }
 
   async initializePayment(
     data: CreateMobilePaymentInput["body"] & { mode: ACCOUNT_MODE; app: string }
@@ -243,8 +243,8 @@ export default class MobilePaymentService {
         await this.notchpay.handleWebhook({
           signature,
           payload: data,
-          successfulPaymentCb: this.handleSuccessfullPayment,
-          failedPaymentCb: this.handleFailedPayment,
+          successfulPaymentCb: this.handleSuccessfullPayment.bind(this),
+          failedPaymentCb: this.handleFailedPayment.bind(this),
         });
         break;
 
