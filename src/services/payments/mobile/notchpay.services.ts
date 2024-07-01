@@ -6,6 +6,8 @@ import config from "../../../config";
 import logger from "../../../utils/logger";
 import crypto from "node:crypto";
 import { formatNotchPayError } from "../../../utils/format.text";
+import RecipientServices from "../recipient.services";
+import { logError } from "../../../utils/errors/errors.utils";
 
 @Service()
 export default class NotchPayService {
@@ -14,6 +16,8 @@ export default class NotchPayService {
   private _sk = config.NOTCHPAY_SECRET_KEY;
 
   private _webHookSecretHash = config.NOTCHPAY_WEBHOOK_SECRET_HASH;
+
+  constructor(private recipientService: RecipientServices) {}
 
   async initializePayment({
     amount,
@@ -58,15 +62,29 @@ export default class NotchPayService {
     currency: SUPPORTED_CURRENCIES;
     phone: string;
   }) {
-    // Create a NOTCHPAY recipient first then proceed to transfer
-    const { recipient } = await this.createRecipient({ phone });
+    let targetRecipient;
 
-    if (recipient) {
+    // Try to find out if this recipient already registered
+    targetRecipient = await this.recipientService.getRecipient({
+      phone,
+    });
+
+    targetRecipient = targetRecipient?.reference;
+
+    if (!targetRecipient) {
+      // Create a NOTCHPAY recipient first then proceed to transfer
+      const { recipient } = await this.createRecipient({ phone });
+
+      targetRecipient = recipient;
+    }
+
+    // Initiate transfer
+    if (targetRecipient) {
       return axios
         .post(
           `${this._uri}/transfers`,
           {
-            recipient,
+            recipient: targetRecipient,
             amount,
             currency,
             description: "At et veniam ut laboriosam aut sint id voluptas.",
@@ -165,7 +183,7 @@ export default class NotchPayService {
   // Create a NOTCHPAY recipient
   private async createRecipient({
     name = "John Doe",
-    email = config.NOTCHPAY_DEFAULT_RECIPIENT_EMAIL,
+    email = config.DEFAULT_RECIPIENT_EMAIL,
     phone,
     country = COUNTRY_CODE.CM,
   }: {
@@ -194,19 +212,35 @@ export default class NotchPayService {
           },
         }
       )
-      .then((response: AxiosResponse<{ recipient: { id: string } }>) => {
+      .then(async (response: AxiosResponse<{ recipient: { id: string } }>) => {
         const {
           recipient: { id: recipient },
         } = response.data;
 
+        // Persist  recipient to DB before returning it
+        await this.recipientService.createRecipient({
+          reference: recipient,
+          phone,
+          email,
+        });
+
         return { recipient };
       })
       .catch((error) => {
-        console.log({ data: error.response.data });
-
         throw error;
       });
   }
 
-  // TODO: Get transfer
+  // Get transfer
+  async getTransfer({ reference }: { reference: string }) {
+    return axios
+      .get(`${this._uri}/transfers/${reference}`, {
+        headers: {
+          Authorization: this._pk,
+          ["X-Grant"]: this._sk,
+        },
+      })
+      .then((response) => response.data.transfer)
+      .catch((error) => logError(error));
+  }
 }

@@ -70,6 +70,6 @@ export default {
     process.env.APP_ENV === ENV.PRODUCTION
       ? (process.env.NOTCHPAY_WEBHOOK_SECRET_HASH_LIVE as string)
       : (process.env.NOTCHPAY_WEBHOOK_SECRET_HASH_TEST as string),
-  NOTCHPAY_DEFAULT_RECIPIENT_EMAIL: process.env
-    .NOTCHPAY_DEFAULT_RECIPIENT_EMAIL as string,
+  DEFAULT_RECIPIENT_EMAIL: process.env
+    .DEFAULT_RECIPIENT_EMAIL as string,
 };

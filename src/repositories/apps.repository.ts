@@ -2,7 +2,7 @@ import { Service } from "typedi";
 import { RegisterAppInput, UpdateAppInput } from "../schemas/apps.schemas";
 import App, { AppDocument } from "../models/apps.model";
 import { Types } from "mongoose";
-import { BALANCE_TYPE } from "../utils/enums/payment";
+import { BALANCE_TYPE, TRANSACTION_TYPE } from "../utils/enums/payment";
 
 @Service()
 export default class AppsRepository {
@@ -35,19 +35,28 @@ export default class AppsRepository {
   async updateAppBalance(
     appId: string,
     amount: number,
-    balanceType: BALANCE_TYPE
+    balanceType: BALANCE_TYPE,
+    trxType?: TRANSACTION_TYPE
   ) {
-    const app = await App.findById(appId) as AppDocument;
+    const app = (await App.findById(appId)) as AppDocument;
 
-    if(!app.balance){
+    if (!app.balance) {
       app.balance = {
         mobile: 0,
-        card: 0
-      }
+        card: 0,
+      };
     }
 
-    balanceType === BALANCE_TYPE.CARD ? app.balance.card += amount : app.balance.mobile += amount
+    if (trxType == TRANSACTION_TYPE.CASHIN) {
+      balanceType === BALANCE_TYPE.CARD
+        ? (app.balance.card += amount)
+        : (app.balance.mobile += amount);
+    } else {
+      balanceType === BALANCE_TYPE.CARD
+        ? (app.balance.card -= amount)
+        : (app.balance.mobile -= amount);
+    }
 
-    await app.save()
+    await app.save();
   }
 }
