@@ -58,14 +58,18 @@ export default {
   // NOTCHPAY
   NOTCHPAY_BASE_URL: process.env.NOTCHPAY_BASE_URL as string,
   NOTCHPAY_REFERENCE: process.env.NOTCHPAY_REFERENCE as string,
-  NOTCHPAY_PUBLIC_KEY_TEST: process.env.NOTCHPAY_PUBLIC_KEY_TEST as string,
-  NOTCHPAY_PUBLIC_KEY_LIVE: process.env.NOTCHPAY_PUBLIC_KEY_LIVE as string,
-  NOTCHPAY_SECRET_KEY_TEST: process.env.NOTCHPAY_SECRET_KEY_TEST as string,
-  NOTCHPAY_SECRET_KEY_LIVE: process.env.NOTCHPAY_SECRET_KEY_LIVE as string,
-  NOTCHPAY_WEBHOOK_SECRET_HASH_TEST: process.env
-    .NOTCHPAY_WEBHOOK_SECRET_HASH_TEST as string,
-  NOTCHPAY_WEBHOOK_SECRET_HASH_LIVE: process.env
-    .NOTCHPAY_WEBHOOK_SECRET_HASH_LIVE as string,
+  NOTCHPAY_PUBLIC_KEY:
+    process.env.APP_ENV == ENV.PRODUCTION
+      ? (process.env.NOTCHPAY_PUBLIC_KEY_LIVE as string)
+      : (process.env.NOTCHPAY_PUBLIC_KEY_TEST as string),
+  NOTCHPAY_SECRET_KEY:
+    process.env.APP_ENV === ENV.PRODUCTION
+      ? (process.env.NOTCHPAY_SECRET_KEY_LIVE as string)
+      : (process.env.NOTCHPAY_SECRET_KEY_TEST as string),
+  NOTCHPAY_WEBHOOK_SECRET_HASH:
+    process.env.APP_ENV === ENV.PRODUCTION
+      ? (process.env.NOTCHPAY_WEBHOOK_SECRET_HASH_LIVE as string)
+      : (process.env.NOTCHPAY_WEBHOOK_SECRET_HASH_TEST as string),
   NOTCHPAY_DEFAULT_RECIPIENT_EMAIL: process.env
     .NOTCHPAY_DEFAULT_RECIPIENT_EMAIL as string,
 };

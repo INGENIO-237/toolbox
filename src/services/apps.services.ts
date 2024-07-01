@@ -31,7 +31,7 @@ export default class AppsService {
   }
 
   async getApp(filter: { appId?: string; name?: string; apiKey?: string }) {
-    return await this.repository.getApp(filter);
+    return await this.repository.getApp(filter) as AppDocument;
   }
 
   async updateApp(appId: string, update: UpdateAppInput["body"]) {

@@ -1,10 +1,7 @@
 import { Service } from "typedi";
-import {
-  SUPPORTED_CURRENCIES,
-  TRANSACTION_TYPE,
-} from "../../../utils/enums/payment";
-import axios from "axios";
-import { COUNTRY_CODE, ENV } from "../../../utils/enums/common";
+import { SUPPORTED_CURRENCIES } from "../../../utils/enums/payment";
+import axios, { AxiosResponse } from "axios";
+import { COUNTRY_CODE } from "../../../utils/enums/common";
 import config from "../../../config";
 import logger from "../../../utils/logger";
 import crypto from "node:crypto";
@@ -12,10 +9,11 @@ import { formatNotchPayError } from "../../../utils/format.text";
 
 @Service()
 export default class NotchPayService {
-  private _webHookSecretHash =
-    config.APP_ENV === ENV.PRODUCTION
-      ? config.NOTCHPAY_WEBHOOK_SECRET_HASH_LIVE
-      : config.NOTCHPAY_WEBHOOK_SECRET_HASH_TEST;
+  private _uri = config.NOTCHPAY_BASE_URL;
+  private _pk = config.NOTCHPAY_PUBLIC_KEY;
+  private _sk = config.NOTCHPAY_SECRET_KEY;
+
+  private _webHookSecretHash = config.NOTCHPAY_WEBHOOK_SECRET_HASH;
 
   async initializePayment({
     amount,
@@ -28,14 +26,11 @@ export default class NotchPayService {
   }) {
     return axios
       .post(
-        `${config.NOTCHPAY_BASE_URL}/payments/initialize`,
+        `${this._uri}/payments/initialize`,
         { amount, currency, phone },
         {
           headers: {
-            Authorization:
-              config.APP_ENV == ENV.PRODUCTION
-                ? config.NOTCHPAY_PUBLIC_KEY_LIVE
-                : config.NOTCHPAY_PUBLIC_KEY_TEST,
+            Authorization: this._pk,
           },
           timeout: 5000,
         }
@@ -45,7 +40,7 @@ export default class NotchPayService {
           transaction: { reference },
           authorization_url,
         } = response.data;
-        logger.info({ authorization_url });
+        logger.info(authorization_url.toString());
         return reference as string;
       })
       .catch((error) => {
@@ -63,43 +58,40 @@ export default class NotchPayService {
     currency: SUPPORTED_CURRENCIES;
     phone: string;
   }) {
-    return axios
-      .post(
-        `${config.NOTCHPAY_BASE_URL}/transfers`,
-        {
-          amount,
-          currency,
-          channel: "cm.mobile",
-          beneficiary: { phone },
-          description: TRANSACTION_TYPE.CASHOUT,
-          reference: config.NOTCHPAY_REFERENCE,
-        },
-        {
-          headers: {
-            Authorization:
-              config.APP_ENV == ENV.PRODUCTION
-                ? config.NOTCHPAY_PUBLIC_KEY_LIVE
-                : config.NOTCHPAY_PUBLIC_KEY_TEST,
-            "Grant-Authorization":
-              config.APP_ENV == ENV.PRODUCTION
-                ? config.NOTCHPAY_SECRET_KEY_LIVE
-                : config.NOTCHPAY_SECRET_KEY_TEST,
-            Accept: "application/json",
-          },
-          timeout: 5000,
-        }
-      )
-      .then((response) => {
-        const {
-          transfer: { reference },
-        } = response.data;
+    // Create a NOTCHPAY recipient first then proceed to transfer
+    const { recipient } = await this.createRecipient({ phone });
 
-        return reference as string;
-      })
-      .catch((error) => {
-        logger.error(error.message);
-        throw error;
-      });
+    if (recipient) {
+      return axios
+        .post(
+          `${this._uri}/transfers`,
+          {
+            recipient,
+            amount,
+            currency,
+            description: "At et veniam ut laboriosam aut sint id voluptas.",
+          },
+          {
+            headers: {
+              Authorization: this._pk,
+              ["X-Grant"]: this._sk,
+              Accept: "application/json",
+            },
+            timeout: 5000,
+          }
+        )
+        .then((response) => {
+          const {
+            transfer: { reference },
+          } = response.data;
+
+          return reference as string;
+        })
+        .catch((error) => {
+          logger.error(error.message);
+          throw error;
+        });
+    }
   }
 
   async handleWebhook({
@@ -170,19 +162,51 @@ export default class NotchPayService {
     //   updated_at: '2024-05-13T17:33:20.000000Z'
   }
 
+  // Create a NOTCHPAY recipient
   private async createRecipient({
     name = "John Doe",
     email = config.NOTCHPAY_DEFAULT_RECIPIENT_EMAIL,
     phone,
     country = COUNTRY_CODE.CM,
-    currency = SUPPORTED_CURRENCIES.XAF,
   }: {
-    name: string;
-    email: string;
+    name?: string;
+    email?: string;
     phone: string;
     country?: COUNTRY_CODE;
-    currency?: SUPPORTED_CURRENCIES;
   }) {
-    
+    return axios
+      .post(
+        `${this._uri}/recipients`,
+        {
+          phone,
+          name,
+          email,
+          country,
+          channel: "cm.mobile",
+          number: phone,
+          description:
+            "Hic blanditiis voluptatem nobis ut saepe dolorem molestiae dolorum.",
+        },
+        {
+          headers: {
+            ["X-Grant"]: this._sk,
+            Authorization: this._pk,
+          },
+        }
+      )
+      .then((response: AxiosResponse<{ recipient: { id: string } }>) => {
+        const {
+          recipient: { id: recipient },
+        } = response.data;
+
+        return { recipient };
+      })
+      .catch((error) => {
+        console.log({ data: error.response.data });
+
+        throw error;
+      });
   }
+
+  // TODO: Get transfer
 }

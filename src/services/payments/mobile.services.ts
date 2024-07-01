@@ -32,7 +32,7 @@ export default class MobilePaymentService {
     private repository: MobilePaymentRepository,
     private appService: AppsService,
     private notchpay: NotchPayService
-  ) { }
+  ) {}
 
   async initializePayment(
     data: CreateMobilePaymentInput["body"] & { mode: ACCOUNT_MODE; app: string }
@@ -90,7 +90,7 @@ export default class MobilePaymentService {
   ) {
     const {
       amount,
-      currency,
+      currency = SUPPORTED_CURRENCIES.XAF,
       provider: { name, country },
       phone,
       mode,
@@ -112,6 +112,16 @@ export default class MobilePaymentService {
       method: name,
       country,
     });
+
+    const appDocument = await this.appService.getApp({ appId: app });
+
+    // Raise Insufficient balance if balance < requested transfer amount
+    if (appDocument.balance.mobile < amount) {
+      throw new ApiError(
+        `Insufficient balance. Your actual balance is: ${appDocument.balance.mobile} ${currency}`,
+        HTTP.BAD_REQUEST
+      );
+    }
 
     if (!partner) {
       throw new ApiError(
@@ -146,7 +156,7 @@ export default class MobilePaymentService {
   private async handlePaymentInitialization({
     partner,
     amount,
-    currency=SUPPORTED_CURRENCIES.XAF,
+    currency = SUPPORTED_CURRENCIES.XAF,
     phone,
     provider,
     app,
@@ -189,7 +199,7 @@ export default class MobilePaymentService {
   private async handleTransferInitialization({
     partner,
     amount,
-    currency=SUPPORTED_CURRENCIES.XAF,
+    currency = SUPPORTED_CURRENCIES.XAF,
     phone,
     provider,
     app,
@@ -218,7 +228,7 @@ export default class MobilePaymentService {
           phone,
           provider,
           transactionType: TRANSACTION_TYPE.CASHOUT,
-          trxRef: reference,
+          trxRef: reference as string,
           app,
         });
 
