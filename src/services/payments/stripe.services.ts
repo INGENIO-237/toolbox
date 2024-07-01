@@ -73,7 +73,7 @@ export default class StripePaymentService {
     const { client_secret, id: paymentIntent } =
       await this._stripe.paymentIntents.create({
         amount,
-        currency,
+        currency: currency as string,
         customer: customerId,
       });
 
