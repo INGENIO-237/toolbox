@@ -1,5 +1,5 @@
-import { Schema, Types, model } from "mongoose";
-import PaymentSchema, { PaymentDocument } from "./payment.model";
+import { Schema, Types } from "mongoose";
+import Payment, { PaymentDocument } from "./payment.model";
 import { COUNTRY_CODE } from "../../utils/enums/common";
 import { PartnerDocument } from "../partner.model";
 
@@ -15,7 +15,7 @@ export interface MobilePaymentDocument extends PaymentDocument {
   trxRef: string;
 }
 
-const MobilePayment = PaymentSchema.discriminator<MobilePaymentDocument>(
+const MobilePayment = Payment.discriminator<MobilePaymentDocument>(
   "MobilePayment",
   new Schema({
     partner: {

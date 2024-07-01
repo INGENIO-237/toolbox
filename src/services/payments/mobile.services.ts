@@ -24,6 +24,8 @@ import {
 import isValidPhoneNumber from "../../utils/phone";
 import config from "../../config";
 import AppsService from "../apps.services";
+import { PaymentsHooks } from "../../hooks";
+import { PAYMENT_HOOK_ACTIONS } from "../../utils/constants/hooks.actions";
 
 @Service()
 export default class MobilePaymentService {
@@ -32,7 +34,7 @@ export default class MobilePaymentService {
     private repository: MobilePaymentRepository,
     private appService: AppsService,
     private notchpay: NotchPayService
-  ) { }
+  ) {}
 
   async initializePayment(
     data: CreateMobilePaymentInput["body"] & { mode: ACCOUNT_MODE; app: string }
@@ -90,7 +92,7 @@ export default class MobilePaymentService {
   ) {
     const {
       amount,
-      currency,
+      currency = SUPPORTED_CURRENCIES.XAF,
       provider: { name, country },
       phone,
       mode,
@@ -112,6 +114,16 @@ export default class MobilePaymentService {
       method: name,
       country,
     });
+
+    const appDocument = await this.appService.getApp({ appId: app });
+
+    // Raise Insufficient balance if balance < requested transfer amount
+    if (appDocument.balance.mobile < amount) {
+      throw new ApiError(
+        `Insufficient balance. Your actual balance is: ${appDocument.balance.mobile} ${currency}`,
+        HTTP.BAD_REQUEST
+      );
+    }
 
     if (!partner) {
       throw new ApiError(
@@ -146,14 +158,14 @@ export default class MobilePaymentService {
   private async handlePaymentInitialization({
     partner,
     amount,
-    currency,
+    currency = SUPPORTED_CURRENCIES.XAF,
     phone,
     provider,
     app,
   }: {
     partner: PartnerDocument;
     amount: number;
-    currency: SUPPORTED_CURRENCIES;
+    currency?: SUPPORTED_CURRENCIES;
     phone: string;
     provider: Provider;
     app: string;
@@ -189,14 +201,14 @@ export default class MobilePaymentService {
   private async handleTransferInitialization({
     partner,
     amount,
-    currency,
+    currency = SUPPORTED_CURRENCIES.XAF,
     phone,
     provider,
     app,
   }: {
     partner: PartnerDocument;
     amount: number;
-    currency: SUPPORTED_CURRENCIES;
+    currency?: SUPPORTED_CURRENCIES;
     phone: string;
     provider: Provider;
     app: string;
@@ -218,9 +230,19 @@ export default class MobilePaymentService {
           phone,
           provider,
           transactionType: TRANSACTION_TYPE.CASHOUT,
-          trxRef: reference,
+          trxRef: reference as string,
           app,
         });
+
+        /**
+         * Emit INITIATED_TRANSFER so that we can track
+         * the transfer in order to update its status
+         */
+        PaymentsHooks.emit(
+          PAYMENT_HOOK_ACTIONS.INITIATED_TRANSFER,
+          reference,
+          partner.name
+        );
 
         return ref;
 
@@ -253,7 +275,15 @@ export default class MobilePaymentService {
     }
   }
 
-  private async handleSuccessfullPayment({ trxRef }: { trxRef: string }) {
+  async handleSuccessfullPayment({
+    trxRef,
+    type = TRANSACTION_TYPE.CASHIN,
+    amount,
+  }: {
+    trxRef: string;
+    type?: TRANSACTION_TYPE;
+    amount?: number;
+  }) {
     await this.repository.updatePayment({
       trxRef,
       status: PAYMENT_STATUS.SUCCEEDED,
@@ -264,14 +294,23 @@ export default class MobilePaymentService {
       trxRef,
     })) as MobilePaymentDocument;
 
-    await this.appService.updateBalance(
-      payment.app.toString(),
-      payment.amount,
-      BALANCE_TYPE.MOBILE
-    );
+    if (type === TRANSACTION_TYPE.CASHIN) {
+      await this.appService.updateBalance(
+        payment.app.toString(),
+        payment.amount,
+        BALANCE_TYPE.MOBILE
+      );
+    } else {
+      await this.appService.updateBalance(
+        payment.app.toString(),
+        amount as number,
+        BALANCE_TYPE.MOBILE,
+        TRANSACTION_TYPE.CASHOUT
+      );
+    }
   }
 
-  private async handleFailedPayment({
+  async handleFailedPayment({
     trxRef,
     failMessage,
   }: {
