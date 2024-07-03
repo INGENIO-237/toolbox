@@ -8,6 +8,7 @@ import { MobilePaymentService } from "../../services/payments";
 import { ACCOUNT_MODE } from "../../utils/enums/common";
 import HTTP from "../../utils/constants/http.responses";
 import { PARTNERS } from "../../utils/enums/payment";
+import { GetPayment } from "../../schemas/payments/mobile.schemas";
 
 @Service()
 export default class MobilePaymentController {
@@ -57,5 +58,11 @@ export default class MobilePaymentController {
     }
 
     return res.sendStatus(HTTP.OK);
+  }
+
+  async getPayment(req: Request<GetPayment["params"]>, res: Response) {
+    const payment = await this.service.getPayment({
+      reference: req.params.reference,
+    });
   }
 }

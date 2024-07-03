@@ -87,3 +87,12 @@ export type CreateMobilePaymentInput = z.infer<
 export type CreateMobileTransferInput = z.infer<
   typeof createMobileTransferSchema
 >;
+
+// TODO: Document schema
+export const getPaymentSchema = object({
+  params: object({
+    reference: string(),
+  }),
+});
+
+export type GetPayment = z.infer<typeof getPaymentSchema>;

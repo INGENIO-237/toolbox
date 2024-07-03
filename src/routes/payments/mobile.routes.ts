@@ -11,6 +11,7 @@ import {
 import isTrustedApp from "../../middlewares/isTrustedApp";
 import isAllowedService from "../../middlewares/isAllowedService";
 import { tryCatch } from "../../utils/errors/errors.utils";
+import { getPaymentSchema } from "../../schemas/payments/mobile.schemas";
 
 const MobilePaymentRouter = Router();
 const controller = Container.get(MobilePaymentController);
@@ -79,6 +80,15 @@ MobilePaymentRouter.post(
   isAllowedService,
   validate(createMobileTransferSchema),
   tryCatch(controller.initializeTransfer.bind(controller))
+);
+
+// TODO: Document endpoint
+MobilePaymentRouter.post(
+  "/references/:reference",
+  isTrustedApp,
+  isAllowedService,
+  validate(getPaymentSchema),
+  tryCatch(controller.getPayment.bind(controller))
 );
 
 MobilePaymentRouter.post(
