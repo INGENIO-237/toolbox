@@ -17,13 +17,14 @@ export default class MobilePaymentController {
     req: Request<{}, {}, CreateMobilePaymentInput["body"]>,
     res: Response
   ) {
-    const reference = await this.service.initializePayment({
-      ...req.body,
-      mode: res.locals.mode as ACCOUNT_MODE,
-      app: res.locals.app,
-    });
+    const { ref: reference, authorization_url } =
+      await this.service.initializePayment({
+        ...req.body,
+        mode: res.locals.mode as ACCOUNT_MODE,
+        app: res.locals.app,
+      });
 
-    return res.status(HTTP.CREATED).json({ reference });
+    return res.status(HTTP.CREATED).json({ reference, authorization_url });
   }
 
   async initializeTransfer(

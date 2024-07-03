@@ -45,7 +45,7 @@ export default class NotchPayService {
           authorization_url,
         } = response.data;
         logger.info(authorization_url.toString());
-        return reference as string;
+        return { reference: reference as string, authorization_url };
       })
       .catch((error) => {
         logger.error(error);

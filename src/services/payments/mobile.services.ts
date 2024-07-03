@@ -173,7 +173,7 @@ export default class MobilePaymentService {
     switch (partner.name) {
       case PARTNERS.NOTCHPAY:
         // Initialize payment with the partner
-        const reference = await this.notchpay.initializePayment({
+        const {reference, authorization_url} = await this.notchpay.initializePayment({
           amount,
           currency,
           phone,
@@ -191,7 +191,7 @@ export default class MobilePaymentService {
           app,
         });
 
-        return ref;
+        return {ref, authorization_url};
 
       default:
         throw new ApiError("Invalid partner", HTTP.INTERNAL_SERVER_ERROR);
