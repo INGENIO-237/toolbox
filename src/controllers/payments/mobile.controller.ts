@@ -64,5 +64,7 @@ export default class MobilePaymentController {
     const payment = await this.service.getPayment({
       reference: req.params.reference,
     });
+
+    return res.status(HTTP.OK).json(payment);
   }
 }

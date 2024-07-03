@@ -83,7 +83,7 @@ MobilePaymentRouter.post(
 );
 
 // TODO: Document endpoint
-MobilePaymentRouter.post(
+MobilePaymentRouter.get(
   "/references/:reference",
   isTrustedApp,
   isAllowedService,
