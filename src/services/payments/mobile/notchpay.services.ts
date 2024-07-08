@@ -36,7 +36,7 @@ export default class NotchPayService {
           headers: {
             Authorization: this._pk,
           },
-          timeout: 5000,
+          timeout: 10000,
         }
       )
       .then((response) => {
