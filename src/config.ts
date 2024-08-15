@@ -70,6 +70,13 @@ export default {
     process.env.APP_ENV === ENV.PRODUCTION
       ? (process.env.NOTCHPAY_WEBHOOK_SECRET_HASH_LIVE as string)
       : (process.env.NOTCHPAY_WEBHOOK_SECRET_HASH_TEST as string),
-  DEFAULT_RECIPIENT_EMAIL: process.env
-    .DEFAULT_RECIPIENT_EMAIL as string,
+  DEFAULT_RECIPIENT_EMAIL: process.env.DEFAULT_RECIPIENT_EMAIL as string,
+
+  // PAWAPAY
+  PAWAPAY_BASE_URL: (process.env.APP_ENV === ENV.PRODUCTION
+    ? process.env.PAWAPAY_PROD_URL
+    : process.env.PAWAPAY_SANDBOX_URL) as string,
+  PAWAPAY_TOKEN: (process.env.APP_ENV === ENV.PRODUCTION
+    ? process.env.PAWAPAY_PROD_TOKEN
+    : process.env.PAWAPAY_SANDBOX_TOKEN) as string,
 };

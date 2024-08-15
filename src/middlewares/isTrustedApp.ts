@@ -30,7 +30,7 @@ export default function isTrustedApp(
       }
 
       res.locals.allowedServices = trustedApp.allowedServices as string;
-      res.locals.app = trustedApp._id.toString();
+      res.locals.app = { id: trustedApp._id as string, name: trustedApp.name };
       res.locals.mode = trustedApp.mode;
 
       return next();
