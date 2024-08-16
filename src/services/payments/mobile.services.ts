@@ -91,7 +91,7 @@ export default class MobilePaymentService {
   async initializeTransfer(
     data: CreateMobileTransferInput["body"] & {
       mode: ACCOUNT_MODE;
-      app: string;
+      app: { id: string; name: string };
     }
   ) {
     const {
@@ -119,7 +119,9 @@ export default class MobilePaymentService {
       country,
     });
 
-    const appDocument = await this.appService.getApp({ appId: app });
+    const appDocument = await this.appService.getApp({
+      appId: app.id as string,
+    });
 
     // Raise Insufficient balance if balance < requested transfer amount
     if (appDocument.balance.mobile < amount) {
@@ -239,48 +241,50 @@ export default class MobilePaymentService {
     currency?: SUPPORTED_CURRENCIES;
     phone: string;
     provider: Provider;
-    app: string;
+    app: { id: string; name: string };
   }) {
     let reference;
     switch (partner.name) {
-      case PARTNERS.NOTCHPAY:
-        // Initialize transfer with the partner
-        reference = await this.notchpay.initializeTransfer({
-          amount,
-          currency,
-          phone,
-        });
+      // case PARTNERS.NOTCHPAY:
+      //   // Initialize transfer with the partner
+      //   reference = await this.notchpay.initializeTransfer({
+      //     amount,
+      //     currency,
+      //     phone,
+      //   });
 
-        // Persist transfer
-        const { ref: notchPayRef } = await this.repository.initializePayment({
-          partner: partner._id as string,
-          amount,
-          currency,
-          phone,
-          provider,
-          transactionType: TRANSACTION_TYPE.CASHOUT,
-          trxRef: reference as string,
-          app,
-        });
+      //   // Persist transfer
+      //   const { ref: notchPayRef } = await this.repository.initializePayment({
+      //     partner: partner._id as string,
+      //     amount,
+      //     currency,
+      //     phone,
+      //     provider,
+      //     transactionType: TRANSACTION_TYPE.CASHOUT,
+      //     trxRef: reference as string,
+      //     app: app.id,
+      //   });
 
-        /**
-         * Emit INITIATED_TRANSFER so that we can track
-         * the transfer in order to update its status
-         */
-        PaymentsHooks.emit(
-          PAYMENT_HOOK_ACTIONS.INITIATED_TRANSFER,
-          reference,
-          partner.name
-        );
+      //   /**
+      //    * Emit INITIATED_TRANSFER so that we can track
+      //    * the transfer in order to update its status
+      //    */
+      //   PaymentsHooks.emit(
+      //     PAYMENT_HOOK_ACTIONS.INITIATED_TRANSFER,
+      //     reference,
+      //     partner.name
+      //   );
 
-        return notchPayRef;
+      //   return notchPayRef;
       case PARTNERS.PAWAPAY:
         // Initialize transfer with the partner
-        reference = await this.notchpay.initializeTransfer({
-          amount,
-          currency,
-          phone,
-        });
+        const { referencePawaPay } =
+          await this.pawaPay.initializeTransfer({
+            amount,
+            currency,
+            phone,
+            appName: app.name,
+          });
 
         // Persist transfer
         const { ref: pawaPayRef } = await this.repository.initializePayment({
@@ -290,19 +294,19 @@ export default class MobilePaymentService {
           phone,
           provider,
           transactionType: TRANSACTION_TYPE.CASHOUT,
-          trxRef: reference as string,
-          app,
+          trxRef: referencePawaPay as string,
+          app: app.id,
         });
 
         /**
          * Emit INITIATED_TRANSFER so that we can track
          * the transfer in order to update its status
          */
-        PaymentsHooks.emit(
-          PAYMENT_HOOK_ACTIONS.INITIATED_TRANSFER,
-          reference,
-          partner.name
-        );
+        // PaymentsHooks.emit(
+        //   PAYMENT_HOOK_ACTIONS.INITIATED_TRANSFER,
+        //   referencePawaPay,
+        //   partner.name
+        // );
 
         return pawaPayRef;
       default:
