@@ -1,5 +1,5 @@
 import { Service } from "typedi";
-import { SUPPORTED_CURRENCIES } from "../../../utils/enums/payment";
+import { SUPPORTED_CURRENCIES, TRANSACTION_TYPE } from "../../../utils/enums/payment";
 import axios, { AxiosResponse } from "axios";
 import { COUNTRY_CODE } from "../../../utils/enums/common";
 import config from "../../../config";
@@ -120,7 +120,7 @@ export default class NotchPayService {
   }: {
     signature: string;
     payload: any;
-    successfulPaymentCb: ({ trxRef }: { trxRef: string }) => Promise<void>;
+    successfulPaymentCb: ({ trxRef, type }: { trxRef: string, type?: TRANSACTION_TYPE }) => Promise<void>;
     failedPaymentCb: ({
       trxRef,
       failMessage,

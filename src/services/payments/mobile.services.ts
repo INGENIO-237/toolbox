@@ -16,7 +16,7 @@ import {
   TRANSACTION_TYPE,
 } from "../../utils/enums/payment";
 import { MobilePaymentRepository } from "../../repositories/payments";
-import { NotchPayService } from "./mobile";
+import { NotchPayService, PawaPayService } from "./mobile";
 import {
   MobilePaymentDocument,
   Provider,
@@ -33,11 +33,15 @@ export default class MobilePaymentService {
     private partnerService: PartnerService,
     private repository: MobilePaymentRepository,
     private appService: AppsService,
-    private notchpay: NotchPayService
+    private notchpay: NotchPayService,
+    private pawaPay: PawaPayService
   ) {}
 
   async initializePayment(
-    data: CreateMobilePaymentInput["body"] & { mode: ACCOUNT_MODE; app: string }
+    data: CreateMobilePaymentInput["body"] & {
+      mode: ACCOUNT_MODE;
+      app: { id: string; name: string };
+    }
   ) {
     const {
       amount,
@@ -168,12 +172,12 @@ export default class MobilePaymentService {
     currency?: SUPPORTED_CURRENCIES;
     phone: string;
     provider: Provider;
-    app: string;
+    app: { id: string; name: string };
   }) {
     switch (partner.name) {
       case PARTNERS.NOTCHPAY:
         // Initialize payment with the partner
-        const { reference, authorization_url } =
+        const { reference: referenceNocthPay, authorization_url } =
           await this.notchpay.initializePayment({
             amount,
             currency,
@@ -181,18 +185,41 @@ export default class MobilePaymentService {
           });
 
         // Persist payment initialization
-        const { ref } = await this.repository.initializePayment({
-          partner: partner._id.toString(),
+        const { ref: refNotchPay } = await this.repository.initializePayment({
+          partner: partner._id as string,
           amount,
           currency,
           phone,
           provider,
           transactionType: TRANSACTION_TYPE.CASHIN,
-          trxRef: reference,
-          app,
+          trxRef: referenceNocthPay,
+          app: app.id,
         });
 
-        return { ref, authorization_url };
+        return { ref: refNotchPay, authorization_url };
+      case PARTNERS.PAWAPAY:
+        // Initialize payment with the partner
+        const { reference: referencePawaPay } =
+          await this.pawaPay.initializePayment({
+            amount,
+            currency,
+            phone,
+            appName: app.name,
+          });
+
+        // Persist payment initialization
+        const { ref: refPawaPay } = await this.repository.initializePayment({
+          partner: partner._id as string,
+          amount,
+          currency,
+          phone,
+          provider,
+          transactionType: TRANSACTION_TYPE.CASHIN,
+          trxRef: referencePawaPay,
+          app: app.id,
+        });
+
+        return { ref: refPawaPay };
 
       default:
         throw new ApiError("Invalid partner", HTTP.INTERNAL_SERVER_ERROR);
@@ -214,18 +241,19 @@ export default class MobilePaymentService {
     provider: Provider;
     app: string;
   }) {
+    let reference;
     switch (partner.name) {
       case PARTNERS.NOTCHPAY:
         // Initialize transfer with the partner
-        const reference = await this.notchpay.initializeTransfer({
+        reference = await this.notchpay.initializeTransfer({
           amount,
           currency,
           phone,
         });
 
         // Persist transfer
-        const { ref } = await this.repository.initializePayment({
-          partner: partner._id.toString(),
+        const { ref: notchPayRef } = await this.repository.initializePayment({
+          partner: partner._id as string,
           amount,
           currency,
           phone,
@@ -245,8 +273,38 @@ export default class MobilePaymentService {
           partner.name
         );
 
-        return ref;
+        return notchPayRef;
+      case PARTNERS.PAWAPAY:
+        // Initialize transfer with the partner
+        reference = await this.notchpay.initializeTransfer({
+          amount,
+          currency,
+          phone,
+        });
 
+        // Persist transfer
+        const { ref: pawaPayRef } = await this.repository.initializePayment({
+          partner: partner._id as string,
+          amount,
+          currency,
+          phone,
+          provider,
+          transactionType: TRANSACTION_TYPE.CASHOUT,
+          trxRef: reference as string,
+          app,
+        });
+
+        /**
+         * Emit INITIATED_TRANSFER so that we can track
+         * the transfer in order to update its status
+         */
+        PaymentsHooks.emit(
+          PAYMENT_HOOK_ACTIONS.INITIATED_TRANSFER,
+          reference,
+          partner.name
+        );
+
+        return pawaPayRef;
       default:
         throw new ApiError("Invalid partner", HTTP.INTERNAL_SERVER_ERROR);
     }
@@ -262,8 +320,16 @@ export default class MobilePaymentService {
     data: any;
   }) {
     switch (partner) {
-      case PARTNERS.NOTCHPAY:
-        await this.notchpay.handleWebhook({
+      // case PARTNERS.NOTCHPAY:
+      //   await this.notchpay.handleWebhook({
+      //     signature,
+      //     payload: data,
+      //     successfulPaymentCb: this.handleSuccessfullPayment.bind(this),
+      //     failedPaymentCb: this.handleFailedPayment.bind(this),
+      //   });
+      //   break;
+      case PARTNERS.PAWAPAY:
+        await this.pawaPay.handleWebhook({
           signature,
           payload: data,
           successfulPaymentCb: this.handleSuccessfullPayment.bind(this),
@@ -282,7 +348,7 @@ export default class MobilePaymentService {
     amount,
   }: {
     trxRef: string;
-    type?: TRANSACTION_TYPE;
+    type: TRANSACTION_TYPE;
     amount?: number;
   }) {
     await this.repository.updatePayment({
@@ -295,20 +361,12 @@ export default class MobilePaymentService {
       trxRef,
     })) as MobilePaymentDocument;
 
-    if (type === TRANSACTION_TYPE.CASHIN) {
-      await this.appService.updateBalance(
-        payment.app.toString(),
-        payment.amount,
-        BALANCE_TYPE.MOBILE
-      );
-    } else {
-      await this.appService.updateBalance(
-        payment.app.toString(),
-        amount as number,
-        BALANCE_TYPE.MOBILE,
-        TRANSACTION_TYPE.CASHOUT
-      );
-    }
+    await this.appService.updateBalance(
+      payment.app as string,
+      amount ? amount : payment.amount,
+      BALANCE_TYPE.MOBILE,
+      type
+    );
   }
 
   async handleFailedPayment({
@@ -320,7 +378,8 @@ export default class MobilePaymentService {
   }) {
     await this.repository.updatePayment({
       trxRef,
-      failMessage,
+      failMessage:
+        failMessage && failMessage !== "" ? failMessage : PAYMENT_STATUS.FAILED,
       status: PAYMENT_STATUS.FAILED,
     });
   }

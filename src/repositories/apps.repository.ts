@@ -36,7 +36,7 @@ export default class AppsRepository {
     appId: string,
     amount: number,
     balanceType: BALANCE_TYPE,
-    trxType?: TRANSACTION_TYPE
+    trxType: TRANSACTION_TYPE
   ) {
     const app = (await App.findById(appId)) as AppDocument;
 
@@ -51,7 +51,9 @@ export default class AppsRepository {
       balanceType === BALANCE_TYPE.CARD
         ? (app.balance.card += amount)
         : (app.balance.mobile += amount);
-    } else {
+    }
+
+    if (trxType == TRANSACTION_TYPE.CASHOUT) {
       balanceType === BALANCE_TYPE.CARD
         ? (app.balance.card -= amount)
         : (app.balance.mobile -= amount);

@@ -68,10 +68,10 @@ export default class AppsService {
 
     if (!app) return true;
 
-    return app._id.toString() === appId;
+    return app._id as string == appId;
   }
 
-  async updateBalance(appId: string, amount: number, balanceType: BALANCE_TYPE, trxType?: TRANSACTION_TYPE){
+  async updateBalance(appId: string, amount: number, balanceType: BALANCE_TYPE, trxType: TRANSACTION_TYPE){
     await this.repository.updateAppBalance(appId, amount, balanceType, trxType);
   }
 }

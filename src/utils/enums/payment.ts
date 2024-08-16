@@ -21,4 +21,5 @@ export enum BALANCE_TYPE {
 
 export enum PARTNERS {
   NOTCHPAY = "NOTCHPAY",
+  PAWAPAY = "PAWAPAY",
 }

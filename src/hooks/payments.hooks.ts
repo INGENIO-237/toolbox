@@ -4,7 +4,7 @@ import EventEmitter from "node:events";
 import { PAYMENT_HOOK_ACTIONS } from "../utils/constants/hooks.actions";
 import Container from "typedi";
 import { PARTNERS, TRANSACTION_TYPE } from "../utils/enums/payment";
-import { NotchPayService } from "../services/payments/mobile";
+import { NotchPayService, PawaPayService } from "../services/payments/mobile";
 import { MobilePaymentService } from "../services/payments";
 
 const PaymentsHooks = new EventEmitter();

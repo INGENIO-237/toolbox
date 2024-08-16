@@ -16,6 +16,10 @@ export default function createServer() {
 
   server.use(parseBody());
 
+  // server.use((req: any, res: any, next: any) => {
+  //   console.log({ b: req.body });
+  // });
+
   server.use(deserializeUser);
 
   swaggerDocs(server);
