@@ -74,7 +74,7 @@ export default class PartnerService {
 
     if (!partner) return true;
 
-    return partner._id.toString() === partnerId;
+    return partner._id as string === partnerId;
   }
 
   async updatePartner(partnerId: string, update: UpdatePartnerInput["body"]) {
@@ -88,6 +88,6 @@ export default class PartnerService {
       }
     }
 
-    await this.repository.updatePartner(partner?._id.toString(), update);
+    await this.repository.updatePartner(partner?._id as string, update);
   }
 }

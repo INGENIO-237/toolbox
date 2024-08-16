@@ -93,7 +93,7 @@ export default class SessionService {
     if (user.otp !== otp)
       throw new ApiError(COMMON_MSG.invalid("OTP Code"), HTTP.BAD_REQUEST);
 
-    await this.userService.updateUser(user._id.toString(), { password });
+    await this.userService.updateUser(user._id as string, { password });
   }
 
   async ensureUserIsVerified(user: UserDocument) {
