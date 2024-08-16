@@ -16,7 +16,7 @@ export default class UserRepository {
 
   async createUser(user: CreateUserInput["body"]) {
     return User.create(user).then(async (createdUser) => {
-      const user = await User.findById(createdUser._id.toString()).select(
+      const user = await User.findById(createdUser._id as string).select(
         "-password -__v"
       );
 

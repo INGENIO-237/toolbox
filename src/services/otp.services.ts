@@ -19,7 +19,7 @@ export default class OtpService {
   async sendOtp(user: UserDocument) {
     const otp = this.generateOtpCode();
 
-    await this.userService.updateUser(user._id.toString(), { otp });
+    await this.userService.updateUser(user._id as string, { otp });
 
     UsersHooks.emit(USER_HOOK_ACTIONS.OTP_CODE, { receiver: user.email, otp });
   }

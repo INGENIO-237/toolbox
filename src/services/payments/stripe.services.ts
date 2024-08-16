@@ -137,9 +137,10 @@ export default class StripePaymentService {
     })) as StripePaymentDocument;
 
     await this.appService.updateBalance(
-      payment.app.toString(),
+      payment.app as string,
       payment.amount,
-      BALANCE_TYPE.CARD
+      BALANCE_TYPE.CARD,
+      TRANSACTION_TYPE.CASHIN
     );
   }
 
