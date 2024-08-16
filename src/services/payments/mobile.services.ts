@@ -320,8 +320,16 @@ export default class MobilePaymentService {
     data: any;
   }) {
     switch (partner) {
-      case PARTNERS.NOTCHPAY:
-        await this.notchpay.handleWebhook({
+      // case PARTNERS.NOTCHPAY:
+      //   await this.notchpay.handleWebhook({
+      //     signature,
+      //     payload: data,
+      //     successfulPaymentCb: this.handleSuccessfullPayment.bind(this),
+      //     failedPaymentCb: this.handleFailedPayment.bind(this),
+      //   });
+      //   break;
+      case PARTNERS.PAWAPAY:
+        await this.pawaPay.handleWebhook({
           signature,
           payload: data,
           successfulPaymentCb: this.handleSuccessfullPayment.bind(this),
@@ -340,7 +348,7 @@ export default class MobilePaymentService {
     amount,
   }: {
     trxRef: string;
-    type?: TRANSACTION_TYPE;
+    type: TRANSACTION_TYPE;
     amount?: number;
   }) {
     await this.repository.updatePayment({
@@ -353,20 +361,12 @@ export default class MobilePaymentService {
       trxRef,
     })) as MobilePaymentDocument;
 
-    if (type === TRANSACTION_TYPE.CASHIN) {
-      await this.appService.updateBalance(
-        payment.app as string,
-        payment.amount,
-        BALANCE_TYPE.MOBILE
-      );
-    } else {
-      await this.appService.updateBalance(
-        payment.app as string,
-        amount as number,
-        BALANCE_TYPE.MOBILE,
-        TRANSACTION_TYPE.CASHOUT
-      );
-    }
+    await this.appService.updateBalance(
+      payment.app as string,
+      amount ? amount : payment.amount,
+      BALANCE_TYPE.MOBILE,
+      type
+    );
   }
 
   async handleFailedPayment({
@@ -378,7 +378,8 @@ export default class MobilePaymentService {
   }) {
     await this.repository.updatePayment({
       trxRef,
-      failMessage,
+      failMessage:
+        failMessage && failMessage !== "" ? failMessage : PAYMENT_STATUS.FAILED,
       status: PAYMENT_STATUS.FAILED,
     });
   }

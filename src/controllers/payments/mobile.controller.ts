@@ -49,13 +49,11 @@ export default class MobilePaymentController {
     if (partner == PARTNERS.NOTCHPAY)
       signature = req.headers["x-notch-signature"];
 
-    if (signature) {
-      await this.service.handleWebhook({
-        partner,
-        signature: signature as string,
-        data: req.body,
-      });
-    }
+    await this.service.handleWebhook({
+      partner,
+      signature: signature as string,
+      data: req.body,
+    });
 
     return res.sendStatus(HTTP.OK);
   }

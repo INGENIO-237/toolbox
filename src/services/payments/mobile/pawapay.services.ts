@@ -1,5 +1,8 @@
 import { Service } from "typedi";
-import { SUPPORTED_CURRENCIES } from "../../../utils/enums/payment";
+import {
+  SUPPORTED_CURRENCIES,
+  TRANSACTION_TYPE,
+} from "../../../utils/enums/payment";
 import axios, { AxiosResponse } from "axios";
 import { COUNTRY_CODE } from "../../../utils/enums/common";
 import config from "../../../config";
@@ -14,8 +17,12 @@ import { v4 as uuid } from "uuid";
 export default class PawaPayService {
   private _uri = config.PAWAPAY_BASE_URL;
   private _apiToken = config.PAWAPAY_TOKEN;
+  private _feesRate = 3;
 
   constructor(private recipientService: RecipientServices) {}
+
+  // TODO: Create a hook that will repeatedly fetch the callback from PAWAPAY every 5s
+  // Then stop fetching once status !== ACCEPTED && status !== PENDING
 
   async initializePayment({
     amount,
@@ -32,19 +39,20 @@ export default class PawaPayService {
     const { correspondent } = await this.predictCorrespondent(phone);
 
     const depositId = uuid();
+    const payer = phone.split("").slice(1).join(""); // Remove '+' from the number cause PAWAPAY doesn't like it
 
     return axios
       .post(
         `${this._uri}/deposits`,
         {
           depositId,
-          amount,
+          amount: amount + (amount * this._feesRate) / 100,
           currency,
           correspondent,
           payer: {
             type: "MSISDN",
             address: {
-              value: phone,
+              value: payer,
             },
           },
           customerTimestamp: new Date(),
@@ -57,7 +65,9 @@ export default class PawaPayService {
           },
         }
       )
-      .then((response: AxiosResponse<{ depositId: string }>) => {
+      .then((response) => {
+        console.log({ payment: response.data });
+
         const { depositId } = response.data;
 
         return { reference: depositId };
@@ -65,6 +75,47 @@ export default class PawaPayService {
       .catch((error) => {
         logger.error(error);
         throw error;
+      });
+  }
+
+  async resendCallback({
+    transactionId,
+    transactionType = "deposit",
+  }: {
+    transactionId: string;
+    transactionType: "deposit" | "payout";
+  }) {
+    const data =
+      transactionType === "deposit"
+        ? { depositId: transactionId }
+        : { payoutId: transactionId };
+
+    return axios
+      .post(
+        `${this._uri}/${
+          transactionType === "deposit" ? "deposits" : "payouts"
+        }/resend-callback`,
+        { ...data },
+        {
+          headers: {
+            Authorization: `Bearer ${this._apiToken}`,
+          },
+        }
+      )
+      .then(
+        (
+          response: AxiosResponse<{
+            depositId?: string;
+            payoutId?: string;
+            status: string;
+            rejectionReason: string;
+          }>
+        ) => {
+          return response.data;
+        }
+      )
+      .catch((error) => {
+        logger.error(error);
       });
   }
 
@@ -127,9 +178,20 @@ export default class PawaPayService {
     successfulPaymentCb,
     failedPaymentCb,
   }: {
-    signature: string;
-    payload: any;
-    successfulPaymentCb: ({ trxRef }: { trxRef: string }) => Promise<void>;
+    signature: string | undefined;
+    payload: {
+      depositId?: string;
+      payoutId?: string;
+      status: string;
+      rejectionReason: string;
+    };
+    successfulPaymentCb: ({
+      trxRef,
+      type,
+    }: {
+      trxRef: string;
+      type: TRANSACTION_TYPE;
+    }) => Promise<void>;
     failedPaymentCb: ({
       trxRef,
       failMessage,
@@ -141,23 +203,24 @@ export default class PawaPayService {
     // if (!this.isValidWebhook({ signature, payload })) {
     //   throw new ApiError("Invalid webhook params", HTTP.BAD_REQUEST);
     // }
-    // const {
-    //   event,
-    //   data: { reference },
-    // } = payload;
-    // if (event == "payment.complete") {
-    //   await successfulPaymentCb({ trxRef: reference });
-    // }
-    // if (
-    //   event == "payment.failed" ||
-    //   event == "payment.expired" ||
-    //   event == "payment.canceled"
-    // ) {
-    //   await failedPaymentCb({
-    //     trxRef: reference,
-    //     failMessage: formatPawaPayError(event),
-    //   });
-    // }
+
+    const { depositId, payoutId, status, rejectionReason } = payload;
+
+    const trxRef = (depositId ? depositId : payoutId) as string;
+
+    if (status == "COMPLETED") {
+      await successfulPaymentCb({
+        trxRef,
+        type: depositId ? TRANSACTION_TYPE.CASHIN : TRANSACTION_TYPE.CASHOUT,
+      });
+    }
+
+    if (status == "FAILED" || status == "REJECTED") {
+      await failedPaymentCb({
+        trxRef,
+        failMessage: rejectionReason ? rejectionReason : status,
+      });
+    }
   }
 
   private isValidWebhook({
