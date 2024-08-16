@@ -4,13 +4,9 @@ import {
   TRANSACTION_TYPE,
 } from "../../../utils/enums/payment";
 import axios, { AxiosResponse } from "axios";
-import { COUNTRY_CODE } from "../../../utils/enums/common";
 import config from "../../../config";
 import logger from "../../../utils/logger";
-import crypto from "node:crypto";
-// import { formatPawaPayError } from "../../../utils/format.text";
 import RecipientServices from "../recipient.services";
-import { logError } from "../../../utils/errors/errors.utils";
 import { v4 as uuid } from "uuid";
 
 @Service()
@@ -248,55 +244,6 @@ export default class PawaPayService {
     //   currency: 'XAF',
     //   created_at: '2024-05-13T17:33:20.000000Z',
     //   updated_at: '2024-05-13T17:33:20.000000Z'
-  }
-
-  // Create a PAWAPAY recipient
-  private async createRecipient({
-    name = "John Doe",
-    email = config.DEFAULT_RECIPIENT_EMAIL,
-    phone,
-    country = COUNTRY_CODE.CM,
-  }: {
-    name?: string;
-    email?: string;
-    phone: string;
-    country?: COUNTRY_CODE;
-  }) {
-    // return axios
-    //   .post(
-    //     `${this._uri}/recipients`,
-    //     {
-    //       phone,
-    //       name,
-    //       email,
-    //       country,
-    //       channel: "cm.mobile",
-    //       number: phone,
-    //       description:
-    //         "Hic blanditiis voluptatem nobis ut saepe dolorem molestiae dolorum.",
-    //     },
-    //     {
-    //       headers: {
-    //         ["X-Grant"]: this._sk,
-    //         Authorization: this._apiToken,
-    //       },
-    //     }
-    //   )
-    //   .then(async (response: AxiosResponse<{ recipient: { id: string } }>) => {
-    //     const {
-    //       recipient: { id: recipient },
-    //     } = response.data;
-    //     // Persist  recipient to DB before returning it
-    //     await this.recipientService.createRecipient({
-    //       reference: recipient,
-    //       phone,
-    //       email,
-    //     });
-    //     return { recipient };
-    //   })
-    //   .catch((error) => {
-    //     throw error;
-    //   });
   }
 
   private async predictCorrespondent(phone: string) {
