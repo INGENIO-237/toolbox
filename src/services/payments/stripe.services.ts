@@ -103,8 +103,6 @@ export default class StripePaymentService {
       const receipt = event.data.object.receipt_url as string;
 
       await this.handleSuccessfullPayment({ paymentIntent, receipt });
-
-      // TODO: Update app balance
     }
 
     if (eventType === "charge.expired" || eventType === "charge.failed") {
