@@ -82,7 +82,31 @@ MobilePaymentRouter.post(
   tryCatch(controller.initializeTransfer.bind(controller))
 );
 
-// TODO: Document endpoint
+/**
+ * @openapi
+ * /payments/mobile/references:
+ *  get:
+ *    tags:
+ *    - Mobile Payment
+ *    summary: Get a single payment from its reference
+ *    security:
+ *      - ApiKeyAuth: []
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/InitializeMobileTransfer'
+ *    responses:
+ *      201:
+ *        description: Transfer Initialized
+ *      400:
+ *        description: Bad Request
+ *      401:
+ *        description: Unauthorized to perform this action
+ *      500:
+ *        description: Internal Server Error
+ */
 MobilePaymentRouter.get(
   "/references/:reference",
   isTrustedApp,

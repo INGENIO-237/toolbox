@@ -13,7 +13,7 @@ export default class StripePaymentController {
     res: Response
   ) {
     const { amount, currency } = req.body;
-    const app = res.locals.app as string;
+    const app = res.locals.app.id as string;
 
     const initializedPayment = await this.service.initializePayment({
       amount,
