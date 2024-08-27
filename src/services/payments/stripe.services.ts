@@ -18,6 +18,7 @@ export default class StripePaymentService {
   private _secretKey: string = config.STRIPE_SECRET_KEY;
   private _webHookSecret: string = config.STRIPE_WEBHOOK_ENDPOINT_SECRET;
   private _stripe: Stripe;
+  private _fees = 3.1;
 
   constructor(
     private repository: StripePaymentRepository,
@@ -33,7 +34,7 @@ export default class StripePaymentService {
   }: CreatePaymentInput["body"] & { app: string }) {
     const { client_secret, paymentIntent, customerId } =
       await this.createPaymentIntent({
-        amount,
+        amount: amount + (amount * this._fees) / 100,
         currency,
       });
 
